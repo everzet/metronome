@@ -42,17 +42,21 @@ All the current readings from all the meters, serialised as a JSON string.
 
 ## Example usage
 
-### `.github/workflows/read-meters.yml`
+Below is an example of a project with two meters (`revenue` and `pronicNumber`), read every 12
+hours. Meters code is read from the `prod` branch. Meter readings are then committed into the
+`kpis/latest.prod.toml` file under the `prod` branch.
+
+### `.github/workflows/read-meters-prod.yml`
 
 ```yaml
 on:
   schedule:
-    # run every 6 hours, reading most recent stats and committing
+    # run every 12 hours, reading most recent stats and committing
     # changes to your readings file.
     #
     # use https://crontab.guru to fine-tune this and remember
     # that GitHub's timezone is UTC.
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'
 
 jobs:
   read-meters:
@@ -65,7 +69,7 @@ jobs:
         with:
           # checkout specific branch, otherwise default branch
           # will be used always, which is a `on.schedule` quirk
-          ref: master
+          ref: prod
 
       - name: Read meters
         uses: everzet/metronome/actions/read-meters@master
@@ -79,7 +83,7 @@ jobs:
           # the branch name here should match the branch name
           # above, unless you have a different idea and you know
           # what you are doing
-          repo-branch: master
+          repo-branch: prod
 
         env:
           # most of your meters would fetch data from third party APIs
