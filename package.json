@@ -1,0 +1,17 @@
+{
+  "name": "metronome-read-meters-action",
+  "version": "0.0.1",
+  "description": "GitHub Action to read meters and update readings stored in a repository",
+  "author": "Konstantin Kudryashov (everzet)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/everzet/metronome-read-meters-action"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

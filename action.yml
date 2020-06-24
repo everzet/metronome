@@ -1,0 +1,31 @@
+name: 'Read Metronome Meters'
+author: 'Konstantin Kudryashov (everzet)'
+description: 'Reads meters and updates their readings stored in a repository'
+
+branding:
+  icon: 'thermometer'
+  color: 'blue'
+
+inputs:
+  repo-branch:
+    description: 'A branch to commit readings to'
+    required: true
+  repo-token:
+    description: 'A GitHub token, which would be used to commit readings file'
+    required: true
+  readings-path:
+    description: 'File to commit meter readings into'
+    required: true
+    default: 'kpis/latest.${repo-branch}.toml'
+  meters-script:
+    description: 'A script exporting all repository meters'
+    required: true
+    default: 'kpis/meters/index.js'
+
+outputs:
+  readings:
+    description: 'Current meter readings encoded as JSON string'
+
+runs:
+  using: 'node12'
+  main: 'index.js'
