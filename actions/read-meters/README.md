@@ -66,7 +66,7 @@ jobs:
           ref: master
 
       - name: Read meters
-        uses: everzet/metronome-read-meters-action
+        uses: everzet/metronome/actions/read-meters@master
         with:
           # ${{ secrets.GITHUB_TOKEN }} is always available within
           # a workflow for the given repository. Unless you want to
