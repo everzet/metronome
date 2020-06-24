@@ -108,3 +108,7 @@ module.exports.pronicNumber = async () => {
   return 42;
 };
 ```
+
+Note that the `revenue` meter uses `axios` library. You can install and use dependencies via `npm`
+as per usual, but you would have to commit `kpis/meters/node_modules/` folder (don't forget to
+remove it from `.gitignore`).
