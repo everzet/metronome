@@ -1,5 +1,7 @@
+const path = require("path");
+
 module.exports = async (metersScript) => {
-  const meters = require(metersScript);
+  const meters = require(path.join('./', metersScript));
   const promises = [];
   const readings = {};
 
