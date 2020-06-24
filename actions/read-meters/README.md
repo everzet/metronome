@@ -1,4 +1,4 @@
-# Read Meters action
+# Read meters GitHub action
 
 This action executes meter functions within your repository and commits results of these into a
 TOML file within the same repository.
@@ -41,6 +41,8 @@ if your meters have dependencies. Default is `kpis/meters/index.js`.
 All the current readings from all the meters, serialised as a JSON string.
 
 ## Example usage
+
+### `.github/workflows/read-meters.yml`
 
 ```yaml
 on:
@@ -85,4 +87,20 @@ jobs:
           # GitHub secrets and environment variables here. Environment variables
           # would be accessible within your meters with `process.env.NAME_OF_VAR`
           BUSINESS_DASHBOARD_API_KEY: ${{ secrets.BUSINESS_DASHBOARD_API_KEY }}
+```
+
+### `kpis/meters/index.js`
+
+```js
+const axios = require("axios");
+
+module.exports.revenue = async () => {
+  const API_KEY = process.env.BUSINESS_DASHBOARD_API_KEY;
+  const { data } = await axios.get(`https://dashboard.our-company.com?apiKey=${API_KEY}`);
+  return data.revenue;
+};
+
+module.exports.pronicNumber = async () => {
+  return 42;
+};
 ```
