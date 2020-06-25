@@ -8,6 +8,11 @@ test("properly stringifies different reading types", () => {
   expect(stringifyReadings({ reading: "str" })).toMatch(/reading = "str"/);
 });
 
+test("null and undefined readings are ignored", () => {
+  expect(stringifyReadings({ reading: null })).not.toMatch(/reading =/);
+  expect(stringifyReadings({ reading: undefined })).not.toMatch(/reading =/);
+});
+
 test("readings stringified in consistent order", () => {
   const string1 = stringifyReadings({
     reading2: 2,
