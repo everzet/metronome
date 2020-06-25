@@ -21,12 +21,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Restore NPM cache
-      uses: c-hive/gha-npm-cache@v1
-
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
 
-    - run: npm test
+    - name: Cache NPM modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
