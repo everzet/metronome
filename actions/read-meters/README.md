@@ -49,6 +49,8 @@ hours. Meters code is read from the `prod` branch. Meter readings are then commi
 ### `.github/workflows/read-meters-prod.yml`
 
 ```yaml
+name: Read production meters (KPIs)
+
 on:
   schedule:
     # run every 12 hours, reading most recent stats and committing
@@ -61,7 +63,6 @@ on:
 jobs:
   read-meters:
     runs-on: ubuntu-latest
-    name: Update product KPIs
 
     steps:
       - name: Checkout
