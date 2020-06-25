@@ -1,0 +1,32 @@
+name: Test Read Meters action
+
+on:
+  push:
+    branches: [ master ]
+    paths: [ 'actions/read-meters/**' ]
+
+  pull_request:
+    branches: [ master ]
+    paths: [ 'actions/read-meters/**' ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: 'actions/read-meters'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Restore NPM cache
+      uses: c-hive/gha-npm-cache@v1
+
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - run: npm test
