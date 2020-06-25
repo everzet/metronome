@@ -1,31 +1,28 @@
-const fs = require("fs");
-const childProcess = require("child_process");
+const initializeTestRepository = require("./initializeTestRepository");
 const scanGitHistory = require("./scanGitHistory");
 
 let repo;
-
 beforeEach(() => {
-  repo = fs.mkdtempSync("scanGitHistoryTest");
-  gitInit(repo);
+  repo = initializeTestRepository();
 });
 
 afterEach(() => {
-  fs.rmdirSync(repo, { recursive: true });
+  repo.destroy();
 });
 
 test("does nothing for repository without matching commits", async () => {
-  gitCommit(repo, "first commit");
-  gitCommit(repo, "second commit");
+  repo.commit("first commit");
+  repo.commit("second commit");
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
   expect(onCommit.mock.calls.length).toBe(0);
 });
 
 test("triggers callback for commits with [meter-readings] in their subject", async () => {
-  gitCommit(repo, "metered commit [meter-readings]");
+  repo.commit("metered commit [meter-readings]");
 
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const theCommit = onCommit.mock.calls[0][0];
@@ -36,10 +33,10 @@ test("triggers callback for commits with [meter-readings] in their subject", asy
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
-  gitCommit(repo, "metered commit\\n\\n[meter-readings]");
+  repo.commit("metered commit\\n\\n[meter-readings]");
 
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const theCommit = onCommit.mock.calls[0][0];
@@ -50,10 +47,10 @@ test("triggers callback for commits with [meter-readings] in their body", async 
 });
 
 test("triggers callback for commits with [meter-expectation: ...] in their body", async () => {
-  gitCommit(repo, "commit [meter-expectation: some assumption text]");
+  repo.commit("commit [meter-expectation: some assumption text]");
 
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const theCommit = onCommit.mock.calls[0][0];
@@ -66,10 +63,10 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
 });
 
 test("handles commits with multiple expectations", async () => {
-  gitCommit(repo, "commit\\n\\n[meter-expectation:one]\\n[meter-expectation:two]");
+  repo.commit("commit\\n\\n[meter-expectation:one]\\n[meter-expectation:two]");
 
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const theCommit = onCommit.mock.calls[0][0];
@@ -78,26 +75,13 @@ test("handles commits with multiple expectations", async () => {
 });
 
 test("commits are processed in chronological (reverse for git log) order", async () => {
-  gitCommit(repo, "commit [meter-expectation:one]");
-  gitCommit(repo, "commit [meter-expectation:two]");
+  repo.commit("commit [meter-expectation:one]");
+  repo.commit("commit [meter-expectation:two]");
 
   const onCommit = jest.fn();
-  await scanGitHistory(repo, onCommit);
+  await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(2);
   expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
   expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
 });
-
-const gitInit = (repo) => {
-  childProcess.execSync("git init", { cwd: repo });
-  childProcess.execSync('git config user.name "everzet"', { cwd: repo });
-  childProcess.execSync('git config user.email "me@me.com"', { cwd: repo });
-  gitCommit(repo, "initial commit");
-};
-
-const gitCommit = (repo, message) => {
-  fs.writeFileSync(`${repo}/file`, `${Math.random()}`);
-  childProcess.execSync("git add .", { cwd: repo });
-  childProcess.execSync(`git commit -m "${message}"`, { cwd: repo });
-};
