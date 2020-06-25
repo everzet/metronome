@@ -11,7 +11,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build index.js -o dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {
     "@actions/core": "^1.2.4",
@@ -19,6 +19,7 @@
     "@iarna/toml": "^2.2.5"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.22.3"
+    "@zeit/ncc": "^0.22.3",
+    "jest": "^26.1.0"
   }
 }

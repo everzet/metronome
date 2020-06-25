@@ -1,6 +1,10 @@
 pre-commit:
   parallel: true
   commands:
+    test-read-meters-action:
+      root: 'actions/read-meters/'
+      run: 'npm run test'
+
     build-read-meters-action-dist:
       root: 'actions/read-meters/'
-      run: 'npm install && npm run build && git add dist'
+      run: 'npm run build && git add dist'
