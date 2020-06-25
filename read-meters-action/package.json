@@ -1,5 +1,5 @@
 {
-  "name": "metronome-read-meters-action",
+  "name": "@everzet/metronome-read-meters-action",
   "version": "0.0.1",
   "description": "GitHub Action to read meters and update readings stored in a repository",
   "author": "Konstantin Kudryashov (everzet)",
