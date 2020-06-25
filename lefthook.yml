@@ -3,4 +3,4 @@ pre-commit:
   commands:
     build-read-meters-action-dist:
       root: 'actions/read-meters/'
-      run: 'npm run build && git add dist'
+      run: 'npm install && npm run build && git add dist'
