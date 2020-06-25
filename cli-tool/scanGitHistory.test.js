@@ -6,10 +6,7 @@ let repo;
 
 beforeEach(() => {
   repo = fs.mkdtempSync("scanGitHistoryTest");
-  childProcess.execSync("git init", { cwd: repo });
-  childProcess.execSync('git config user.name "everzet"', { cwd: repo });
-  childProcess.execSync('git config user.email "me@me.com"', { cwd: repo });
-  commit(repo, "initial commit");
+  gitInit(repo);
 });
 
 afterEach(() => {
@@ -17,15 +14,15 @@ afterEach(() => {
 });
 
 test("does nothing for repository without matching commits", async () => {
-  commit(repo, "first commit");
-  commit(repo, "second commit");
+  gitCommit(repo, "first commit");
+  gitCommit(repo, "second commit");
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
   expect(onCommit.mock.calls.length).toBe(0);
 });
 
 test("triggers callback for commits with [meter-readings] in their subject", async () => {
-  commit(repo, "metered commit [meter-readings]");
+  gitCommit(repo, "metered commit [meter-readings]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
@@ -39,7 +36,7 @@ test("triggers callback for commits with [meter-readings] in their subject", asy
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
-  commit(repo, "metered commit\\n\\n[meter-readings]");
+  gitCommit(repo, "metered commit\\n\\n[meter-readings]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
@@ -53,7 +50,7 @@ test("triggers callback for commits with [meter-readings] in their body", async 
 });
 
 test("triggers callback for commits with [meter-expectation: ...] in their body", async () => {
-  commit(repo, "commit [meter-expectation: some assumption text]");
+  gitCommit(repo, "commit [meter-expectation: some assumption text]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
@@ -69,7 +66,7 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
 });
 
 test("handles commits with multiple expectations", async () => {
-  commit(repo, "commit\\n\\n[meter-expectation:one]\\n[meter-expectation:two]");
+  gitCommit(repo, "commit\\n\\n[meter-expectation:one]\\n[meter-expectation:two]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
@@ -81,8 +78,8 @@ test("handles commits with multiple expectations", async () => {
 });
 
 test("commits are processed in chronological (reverse for git log) order", async () => {
-  commit(repo, "commit [meter-expectation:one]");
-  commit(repo, "commit [meter-expectation:two]");
+  gitCommit(repo, "commit [meter-expectation:one]");
+  gitCommit(repo, "commit [meter-expectation:two]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo, onCommit);
@@ -92,7 +89,14 @@ test("commits are processed in chronological (reverse for git log) order", async
   expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
 });
 
-const commit = (repo, message) => {
+const gitInit = (repo) => {
+  childProcess.execSync("git init", { cwd: repo });
+  childProcess.execSync('git config user.name "everzet"', { cwd: repo });
+  childProcess.execSync('git config user.email "me@me.com"', { cwd: repo });
+  gitCommit(repo, "initial commit");
+};
+
+const gitCommit = (repo, message) => {
   fs.writeFileSync(`${repo}/file`, `${Math.random()}`);
   childProcess.execSync("git add .", { cwd: repo });
   childProcess.execSync(`git commit -m "${message}"`, { cwd: repo });
