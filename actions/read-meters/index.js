@@ -31,17 +31,14 @@ async function main() {
     if (fileContains(localReadingsPath, readingsToml)) {
       core.info("No change in readings, skipping commit");
     } else {
-      const gitClient = github.getOctokit(repoToken).git;
-      const branchRef = `heads/${repoBranch}`;
-      const commitMessage = "Update meter readings";
-      const ref = await commitFile(
-        gitClient,
-        repoOwnerAndName,
-        branchRef,
-        readingsPath,
-        readingsToml,
-        commitMessage
-      );
+      const ref = await commitFile({
+        git: github.getOctokit(repoToken).git,
+        repo: repoOwnerAndName,
+        ref: `heads/${repoBranch}`,
+        path: readingsPath,
+        content: readingsToml,
+        message: "Update meter readings",
+      });
       core.info(
         `Committed reading changes to "${readingsPath}" via ${ref.sha}`
       );

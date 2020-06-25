@@ -1,4 +1,4 @@
-module.exports = async (git, repo, ref, path, content, message) => {
+module.exports = async ({ git, repo, ref, path, content, message }) => {
   const lastCommit = await getLastCommitInRef(git, repo, ref);
   const baseTree = await getBaseTree(git, repo, lastCommit);
 
