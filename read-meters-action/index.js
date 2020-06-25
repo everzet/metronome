@@ -7,6 +7,9 @@ const stringifyReadings = require("./stringifyReadings");
 const fileContains = require("./fileContains");
 const commitFile = require("./commitFile");
 
+const READINGS_MARK = "[meter-readings]";
+const COMMIT_MESSAGE = `:thermometer: Provide updated meter readings\n\n${READINGS_MARK}`;
+
 async function main() {
   try {
     // Repository inputs
@@ -35,7 +38,7 @@ async function main() {
         ref: `heads/${repoBranch}`,
         path: readingsPath,
         content: readingsString,
-        message: "Update meter readings",
+        message: COMMIT_MESSAGE,
       });
       core.info(
         `Committed reading changes to "${readingsPath}" via ${ref.sha}`
