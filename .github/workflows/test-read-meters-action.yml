@@ -3,11 +3,15 @@ name: Test Read Meters action
 on:
   push:
     branches: [ master ]
-    paths: [ 'actions/read-meters/**' ]
+    paths:
+    - '.github/workflows/test-read-meters-action.yml'
+    - 'actions/read-meters/**'
 
   pull_request:
     branches: [ master ]
-    paths: [ 'actions/read-meters/**' ]
+    paths:
+    - '.github/workflows/test-read-meters-action.yml'
+    - 'actions/read-meters/**'
 
 jobs:
   test:
