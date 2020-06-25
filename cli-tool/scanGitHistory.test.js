@@ -8,7 +8,7 @@ beforeEach(() => {
   repo = fs.mkdtempSync("scanGitHistoryTest");
   childProcess.execSync("git init", { cwd: repo });
   childProcess.execSync('git config user.name "everzet"', { cwd: repo });
-  childProcess.execSync('git config user.email "me@everzet.com"', { cwd: repo });
+  childProcess.execSync('git config user.email "me@me.com"', { cwd: repo });
   commit(repo, "initial commit");
 });
 
@@ -78,6 +78,18 @@ test("handles commits with multiple expectations", async () => {
   const theCommit = onCommit.mock.calls[0][0];
 
   expect(theCommit.expectations).toEqual(["one", "two"]);
+});
+
+test("commits are processed in chronological (reverse for git log) order", async () => {
+  commit(repo, "commit [meter-expectation:one]");
+  commit(repo, "commit [meter-expectation:two]");
+
+  const onCommit = jest.fn();
+  await scanGitHistory(repo, onCommit);
+
+  expect(onCommit.mock.calls.length).toBe(2);
+  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
+  expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
 });
 
 const commit = (repo, message) => {
