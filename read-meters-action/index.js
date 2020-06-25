@@ -19,16 +19,14 @@ async function main() {
     const readingsPath = core
       .getInput("readings-path")
       .replace("${repo-branch}", repoBranch);
-    const localMetersScript = path.join(process.cwd(), metersScript);
-    const localReadingsPath = path.join(process.cwd(), readingsPath);
 
     // Produce readings
-    const meters = require(localMetersScript);
+    const meters = require(path.resolve(metersScript));
     const readings = await readMeters(meters);
     const readingsString = stringifyReadings(readings);
 
     // Commit readings into repo, if changed
-    if (fileContains(localReadingsPath, readingsString)) {
+    if (fileContains(path.resolve(readingsPath), readingsString)) {
       core.info("No change in readings, skipping commit");
     } else {
       const ref = await commitFile({
