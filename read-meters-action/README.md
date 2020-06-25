@@ -60,6 +60,11 @@ on:
     # that GitHub's timezone is UTC.
     - cron: '0 */12 * * *'
 
+  push:
+    # also rerun on changes to this workflow file, in case some
+    # parameters changed.
+    paths: [ '.github/workflows/read-meters-prod.yml' ]
+
 jobs:
   read-meters:
     runs-on: ubuntu-latest
