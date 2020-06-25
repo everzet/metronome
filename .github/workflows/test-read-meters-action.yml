@@ -5,13 +5,13 @@ on:
     branches: [ master ]
     paths:
     - '.github/workflows/test-read-meters-action.yml'
-    - 'actions/read-meters/**'
+    - 'read-meters-action/**'
 
   pull_request:
     branches: [ master ]
     paths:
     - '.github/workflows/test-read-meters-action.yml'
-    - 'actions/read-meters/**'
+    - 'read-meters-action/**'
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: 'actions/read-meters'
+        working-directory: 'read-meters-action'
 
     steps:
     - name: Checkout code
