@@ -7,6 +7,8 @@ let repo;
 beforeEach(() => {
   repo = fs.mkdtempSync("scanGitHistoryTest");
   childProcess.execSync("git init", { cwd: repo });
+  childProcess.execSync('git config user.name "everzet"', { cwd: repo });
+  childProcess.execSync('git config user.email "me@everzet.com"', { cwd: repo });
   commit(repo, "initial commit");
 });
 
@@ -61,9 +63,9 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
 
   expect(theCommit.type).toEqual("expectations");
   expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(theCommit.author).toBeTruthy();
-  expect(theCommit.time).toBeTruthy();
+  expect(theCommit.author).toEqual("everzet");
   expect(theCommit.expectations).toEqual(["some assumption text"]);
+  expect(theCommit.time).toBeTruthy();
 });
 
 test("handles commits with multiple expectations", async () => {
