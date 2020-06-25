@@ -10,6 +10,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "build": "ncc build index.js -o dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -17,5 +18,7 @@
     "@actions/github": "^3.0.0",
     "@iarna/toml": "^2.2.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.3"
+  }
 }

@@ -6,6 +6,10 @@ branding:
   icon: 'thermometer'
   color: 'blue'
 
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
 inputs:
   repo-branch:
     description: 'A branch to commit readings to'
@@ -25,7 +29,3 @@ inputs:
 outputs:
   readings:
     description: 'Current meter readings encoded as JSON string'
-
-runs:
-  using: 'node12'
-  main: 'index.js'
