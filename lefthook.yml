@@ -8,3 +8,7 @@ pre-commit:
     build-read-meters-action-dist:
       root: 'read-meters-action/'
       run: 'npm run build && git add dist'
+
+    test-cli-tool:
+      root: 'cli-tool/'
+      run: 'npm test'

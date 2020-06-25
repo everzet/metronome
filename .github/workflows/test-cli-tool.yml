@@ -1,0 +1,49 @@
+name: Test CLI Tool
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - '.github/workflows/test-cli-tool.yml'
+    - 'cli-tool/**'
+
+  pull_request:
+    branches: [ master ]
+    paths:
+    - '.github/workflows/test-cli-tool.yml'
+    - 'cli-tool/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: 'cli-tool'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: Cache NPM modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
