@@ -1,12 +1,16 @@
-const path = require("path");
-
-module.exports = async (metersScript) => {
-  const meters = require(path.join(process.cwd(), metersScript));
+module.exports = async (meters) => {
   const promises = [];
   const readings = {};
 
-  for (const name of Object.keys(meters)) {
-    promises.push(meters[name]().then((result) => (readings[name] = result)));
+  for (const [name, meter] of Object.entries(meters)) {
+    const meterPromise = meter();
+
+    if (typeof meterPromise.then !== "function") {
+      throw `Meters must be async functions, but "${name}" is not`;
+    }
+
+    meterPromise.then((result) => (readings[name] = result));
+    promises.push(meterPromise);
   }
 
   await Promise.all(promises);
