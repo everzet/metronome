@@ -7,20 +7,32 @@ module.exports = () => {
 
   return {
     path,
-    commit: (message) => commit(path, message),
+    commit: (message, contents) => commit(path, message, contents),
+    lastCommitSha: () => lastCommitSha(path),
     destroy: () => fs.rmdirSync(path, { recursive: true }),
   };
 };
 
-const init = (repo) => {
-  childProcess.execSync("git init", { cwd: repo });
-  childProcess.execSync('git config user.name "everzet"', { cwd: repo });
-  childProcess.execSync('git config user.email "me@me.com"', { cwd: repo });
-  commit(repo, "initial commit");
+const init = (cwd) => {
+  childProcess.execSync("git init", { cwd });
+  childProcess.execSync('git config user.name "everzet"', { cwd });
+  childProcess.execSync('git config user.email "me@me.com"', { cwd });
+  commit(cwd, "initial commit");
 };
 
-const commit = (repo, message) => {
-  fs.writeFileSync(`${repo}/file`, `${Math.random()}`);
-  childProcess.execSync("git add .", { cwd: repo });
-  childProcess.execSync(`git commit -m "${message}"`, { cwd: repo });
+const commit = (cwd, message, contents = `${Math.random()}`) => {
+  if (Array.isArray(contents)) {
+    contents.forEach((content, idx) =>
+      fs.writeFileSync(`${cwd}/file${idx + 1}`, content)
+    );
+  } else {
+    fs.writeFileSync(`${cwd}/file`, contents);
+  }
+
+  childProcess.execSync("git add .", { cwd });
+  childProcess.execSync(`git commit -m "${message}"`, { cwd });
+};
+
+const lastCommitSha = (cwd) => {
+  return childProcess.execSync("git rev-parse HEAD", { cwd }).toString().trim();
 };
