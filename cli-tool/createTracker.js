@@ -16,6 +16,11 @@ module.exports = (expectation) => {
           readingsDecreasedBy(tracker.trackedReadings(), expectation.measure)
             .length > 0,
       };
+    case "increase_to":
+    case "decrease_to":
+    case "maintain":
+    case "become":
+      throw `Sorry, but ${expectation.direction} expectations are not supported yet`;
   }
 };
 
