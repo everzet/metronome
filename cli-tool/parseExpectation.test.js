@@ -1,37 +1,40 @@
 const parseExpectaion = require("./parseExpectation");
 
 test("returns null if invalid text is given", () => {
-  expect(parseExpectaion("invalid_text", new Date())).toBeNull();
+  expect(parseExpectaion("invalid_text", new Date())).toEqual({
+    ok: false,
+    error: "Parse error",
+  });
 });
 
 test("extracts metric, direction, measure and deadline from text", () => {
-  const expectation = "conversionRate +2% in 1 month";
+  const string = "conversionRate +2% in 1 month";
   const fromDate = new Date("2020-06-26T10:46:19+01:00");
 
-  const parsed = parseExpectaion(expectation, fromDate);
+  const { expectation } = parseExpectaion(string, fromDate);
 
-  expect(parsed).not.toBeNull();
-  expect(parsed.metric).toBe("conversionRate");
-  expect(parsed.direction).toBe("increase_by");
-  expect(parsed.measure.value).toEqual(2.0);
-  expect(parsed.measure.unit).toBe("percent");
-  expect(parsed.fromDate).toEqual(fromDate);
-  expect(parsed.deadline).toEqual(new Date("2020-07-26T11:00:00.000Z"));
+  expect(expectation).not.toBeNull();
+  expect(expectation.metric).toBe("conversionRate");
+  expect(expectation.direction).toBe("increase_by");
+  expect(expectation.measure.value).toEqual(2.0);
+  expect(expectation.measure.unit).toBe("percent");
+  expect(expectation.fromDate).toEqual(fromDate);
+  expect(expectation.deadline).toEqual(new Date("2020-07-26T11:00:00.000Z"));
 });
 
-test("complex expectation in a very natural language", () => {
-  const expectation = "conversion will increase to 5.5 in three weeks from now";
+test("complex string in a very natural language", () => {
+  const string = "conversion will increase to 5.5 in three weeks from now";
   const fromDate = new Date("2020-06-26T10:46:19+01:00");
 
-  const parsed = parseExpectaion(expectation, fromDate);
+  const { expectation } = parseExpectaion(string, fromDate);
 
-  expect(parsed).not.toBeNull();
-  expect(parsed.metric).toBe("conversion");
-  expect(parsed.direction).toBe("increase_to");
-  expect(parsed.measure.value).toEqual(5.5);
-  expect(parsed.measure.unit).toBe("number");
-  expect(parsed.fromDate).toEqual(fromDate);
-  expect(parsed.deadline).toEqual(new Date("2020-07-17:11:00.000Z"));
+  expect(expectation).not.toBeNull();
+  expect(expectation.metric).toBe("conversion");
+  expect(expectation.direction).toBe("increase_to");
+  expect(expectation.measure.value).toEqual(5.5);
+  expect(expectation.measure.unit).toBe("number");
+  expect(expectation.fromDate).toEqual(fromDate);
+  expect(expectation.deadline).toEqual(new Date("2020-07-17:11:00.000Z"));
 });
 
 test("properly parses different direction variants", () => {
@@ -66,9 +69,9 @@ test("properly parses different direction variants", () => {
   ];
 
   cases.forEach(({ text, direction }) => {
-    const expectation = `conv ${text} 2% in 1 month`;
-    const parsed = parseExpectaion(expectation, new Date());
-    expect(parsed.direction).toBe(direction);
+    const string = `conv ${text} 2% in 1 month`;
+    const { expectation } = parseExpectaion(string, new Date());
+    expect(expectation.direction).toBe(direction);
   });
 });
 
@@ -88,9 +91,9 @@ test("properly parses different types of measures", () => {
   ];
 
   cases.forEach(({ text, measure }) => {
-    const expectation = `conv becomes ${text} in 1 month`;
-    const parsed = parseExpectaion(expectation, new Date());
-    expect(parsed.measure).toEqual(measure);
+    const string = `conv becomes ${text} in 1 month`;
+    const { expectation } = parseExpectaion(string, new Date());
+    expect(expectation.measure).toEqual(measure);
   });
 });
 
@@ -116,8 +119,8 @@ test("properly parses different types of timelines", () => {
   ];
 
   cases.forEach(({ text, deadline }) => {
-    const expectation = `conv becomes 2 ${text}`;
-    const parsed = parseExpectaion(expectation, new Date());
-    expect(parsed.deadline).toEqual(deadline);
+    const string = `conv becomes 2 ${text}`;
+    const { expectation } = parseExpectaion(string, new Date());
+    expect(expectation.deadline).toEqual(deadline);
   });
 });

@@ -2,19 +2,20 @@ const chrono = require("chrono-node");
 
 const EXPECTATION_REGEX = /^(?<metric>[a-zA-Z_]+(?:[a-zA-Z_0-9])?)\s+(?:will\s+)?(?<direction>(?:\+|\-|\~|increases? by|decreases? by|increases? to|decreases? to|is|to be|becomes?|stays? at|stays? around))?\s*(?<measure>(?:[0-9]+(?:\.[0-9]+)?\s*(?:\%|percent)|[0-9]+(?:\.[0-9]+)?|true|false|\"[^\"]+\"))\s+(?<timeline>.*)$/i;
 
-module.exports = (expectation, fromDate) => {
-  const match = expectation.match(EXPECTATION_REGEX);
-  if (!match) return null;
+module.exports = (string, fromDate) => {
+  const match = string.match(EXPECTATION_REGEX);
+  if (!match) return { ok: false, error: "Parse error" };
 
   const { groups } = match;
-
-  return {
+  const expectation = {
     metric: groups.metric,
     direction: parseDirection(groups.direction),
     measure: parseMeasure(groups.measure),
     fromDate,
     deadline: parseTimeline(groups.timeline, fromDate),
   };
+
+  return { ok: true, expectation };
 };
 
 const parseDirection = (direction) => {
