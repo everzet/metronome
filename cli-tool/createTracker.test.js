@@ -245,10 +245,18 @@ describe("decrease_by tracker", () => {
   });
 });
 
-describe("increase_to tracker", () => {});
+describe("increase_to tracker", () => {
+  // Allow number and above
+});
 
-describe("decrease_to tracker", () => {});
+describe("decrease_to tracker", () => {
+  // Allow number and below
+});
 
-describe("maintain tracker", () => {});
+describe("maintain tracker", () => {
+  // Allow number/boolean/string with low percent deviation
+});
 
-describe("become tracker", () => {});
+describe("become tracker", () => {
+  // Allow number/boolean/string with high percent stability
+});
