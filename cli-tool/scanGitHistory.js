@@ -57,7 +57,7 @@ const extractExpectations = (message) => {
 const extractBranch = (message) => {
   const match = message.match(METER_READINGS_REGEX);
   if (match) {
-    return match.groups.branch;
+    return match.groups.branch.trim();
   } else {
     return null;
   }

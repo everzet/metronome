@@ -87,3 +87,14 @@ test("commits are processed in chronological (reverse for git log) order", async
   expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
   expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
 });
+
+test("whitespace is removed from branch and expectations", async () => {
+  repo.commit("commit [meter-expectation:  one ]");
+  repo.commit("commit [meter-readings: prod  ]");
+
+  const onCommit = jest.fn();
+  await scanGitHistory(repo.path, onCommit);
+
+  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"])
+  expect(onCommit.mock.calls[1][0].branch).toEqual("prod")
+})
