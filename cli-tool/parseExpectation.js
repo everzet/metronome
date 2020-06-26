@@ -134,5 +134,10 @@ const parseMeasure = (measure) => {
   return null;
 };
 
-const parseTimeline = (timeline, fromDate) =>
-  chrono.parseDate(timeline, fromDate);
+const parseTimeline = (timeline, fromDate) => {
+  const [result] = chrono.parse(timeline, fromDate);
+  if (!result) return null;
+
+  result.start.assign("timezoneOffset", 0);
+  return result.start.date();
+};

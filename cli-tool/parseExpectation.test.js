@@ -19,7 +19,7 @@ test("extracts metric, direction, measure and deadline from text", () => {
   expect(expectation.measure.value).toEqual(2.0);
   expect(expectation.measure.unit).toBe("percent");
   expect(expectation.fromDate).toEqual(fromDate);
-  expect(expectation.deadline).toEqual(new Date("2020-07-26T11:00:00.000Z"));
+  expect(expectation.deadline).toEqual(new Date("2020-07-26T12:00:00.000Z"));
 });
 
 test("complex string in a very natural language", () => {
@@ -34,7 +34,7 @@ test("complex string in a very natural language", () => {
   expect(expectation.measure.value).toEqual(5.5);
   expect(expectation.measure.unit).toBe("number");
   expect(expectation.fromDate).toEqual(fromDate);
-  expect(expectation.deadline).toEqual(new Date("2020-07-17:11:00.000Z"));
+  expect(expectation.deadline).toEqual(new Date("2020-07-17:12:00.000Z"));
 });
 
 test("properly parses different direction variants", () => {
@@ -101,21 +101,21 @@ test("properly parses different types of measures", () => {
 test("properly parses different types of timelines", () => {
   const fromDate = new Date("2020-06-26T10:46:19+01:00");
   const cases = [
-    { text: "tomorrow", deadline: new Date("2020-06-27T11:00:00.000Z") },
-    { text: "in 3 days", deadline: new Date("2020-06-29T11:00:00.000Z") },
-    { text: "in a week", deadline: new Date("2020-07-03T11:00:00.000Z") },
-    { text: "within a week", deadline: new Date("2020-07-03T11:00:00.000Z") },
-    { text: "in under a week", deadline: new Date("2020-07-03T11:00:00.000Z") },
-    { text: "in 2 weeks", deadline: new Date("2020-07-10T11:00:00.000Z") },
+    { text: "tomorrow", deadline: new Date("2020-06-27T12:00:00.000Z") },
+    { text: "in 3 days", deadline: new Date("2020-06-29T12:00:00.000Z") },
+    { text: "in a week", deadline: new Date("2020-07-03T12:00:00.000Z") },
+    { text: "within a week", deadline: new Date("2020-07-03T12:00:00.000Z") },
+    { text: "in under a week", deadline: new Date("2020-07-03T12:00:00.000Z") },
+    { text: "in 2 weeks", deadline: new Date("2020-07-10T12:00:00.000Z") },
     {
       text: "within two weeks",
-      deadline: new Date("2020-07-10T11:00:00.000Z"),
+      deadline: new Date("2020-07-10T12:00:00.000Z"),
     },
-    { text: "next month", deadline: new Date("2020-07-26T11:00:00.000Z") },
-    { text: "in a month", deadline: new Date("2020-07-26T11:00:00.000Z") },
+    { text: "next month", deadline: new Date("2020-07-26T12:00:00.000Z") },
+    { text: "in a month", deadline: new Date("2020-07-26T12:00:00.000Z") },
     {
       text: "in under a month",
-      deadline: new Date("2020-07-26T11:00:00.000Z"),
+      deadline: new Date("2020-07-26T12:00:00.000Z"),
     },
   ];
 
