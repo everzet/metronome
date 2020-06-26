@@ -24,7 +24,8 @@ module.exports = async (cwd, onCommit) => {
 };
 
 function parseCommit(string) {
-  const [sha, time, author, message] = string.split("\n", 4);
+  const [sha, time, author, ...rest] = string.split("\n");
+  const message = rest.join("\n");
   const expectations = extractExpectations(message);
 
   if (expectations.length > 0) {

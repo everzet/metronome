@@ -33,7 +33,7 @@ test("triggers callback for commits with [meter-readings] in their subject", asy
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
-  repo.commit("metered commit\\n\\n[meter-readings]");
+  repo.commit("metered commit\n\n[meter-readings]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo.path, onCommit);
@@ -63,7 +63,7 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
 });
 
 test("handles commits with multiple expectations", async () => {
-  repo.commit("commit\\n\\n[meter-expectation:one]\\n[meter-expectation:two]");
+  repo.commit("commit\n\n[meter-expectation:one]\n[meter-expectation:two]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo.path, onCommit);
