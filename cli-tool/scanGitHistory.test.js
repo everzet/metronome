@@ -25,12 +25,12 @@ test("triggers callback for commits with [meter-readings:...] in their subject",
   await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
-  const theCommit = onCommit.mock.calls[0][0];
+  const parsedCommit = onCommit.mock.calls[0][0];
 
-  expect(theCommit.type).toEqual("readings");
-  expect(theCommit.branch).toEqual("prod");
-  expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(theCommit.time).toBeTruthy();
+  expect(parsedCommit.type).toEqual("readings");
+  expect(parsedCommit.branch).toEqual("prod");
+  expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
+  expect(parsedCommit.time).toBeTruthy();
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
@@ -40,12 +40,12 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
-  const theCommit = onCommit.mock.calls[0][0];
+  const parsedCommit = onCommit.mock.calls[0][0];
 
-  expect(theCommit.type).toEqual("readings");
-  expect(theCommit.branch).toEqual("test");
-  expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(theCommit.time).toBeTruthy();
+  expect(parsedCommit.type).toEqual("readings");
+  expect(parsedCommit.branch).toEqual("test");
+  expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
+  expect(parsedCommit.time).toBeTruthy();
 });
 
 test("triggers callback for commits with [meter-expectation: ...] in their body", async () => {
@@ -55,13 +55,13 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
   await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
-  const theCommit = onCommit.mock.calls[0][0];
+  const parsedCommit = onCommit.mock.calls[0][0];
 
-  expect(theCommit.type).toEqual("expectations");
-  expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(theCommit.author).toEqual("everzet");
-  expect(theCommit.expectations).toEqual(["some assumption text"]);
-  expect(theCommit.time).toBeTruthy();
+  expect(parsedCommit.type).toEqual("expectations");
+  expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
+  expect(parsedCommit.author).toEqual("everzet");
+  expect(parsedCommit.expectations).toEqual(["some assumption text"]);
+  expect(parsedCommit.time).toBeTruthy();
 });
 
 test("handles commits with multiple expectations", async () => {
@@ -71,9 +71,9 @@ test("handles commits with multiple expectations", async () => {
   await scanGitHistory(repo.path, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
-  const theCommit = onCommit.mock.calls[0][0];
+  const parsedCommit = onCommit.mock.calls[0][0];
 
-  expect(theCommit.expectations).toEqual(["one", "two"]);
+  expect(parsedCommit.expectations).toEqual(["one", "two"]);
 });
 
 test("commits are processed in chronological (reverse for git log) order", async () => {
@@ -95,6 +95,6 @@ test("whitespace is removed from branch and expectations", async () => {
   const onCommit = jest.fn();
   await scanGitHistory(repo.path, onCommit);
 
-  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"])
-  expect(onCommit.mock.calls[1][0].branch).toEqual("prod")
-})
+  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
+  expect(onCommit.mock.calls[1][0].branch).toEqual("prod");
+});

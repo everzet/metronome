@@ -15,8 +15,8 @@ module.exports = async (cwd, onCommit) => {
     gitRawCommits(GIT_LOG_OPTIONS, { cwd })
       .pipe(
         through((message, encoding, callback) => {
-          const commit = parseCommit(message.toString());
-          onCommit(commit);
+          const parsedCommit = parseCommit(message.toString());
+          onCommit(parsedCommit);
           callback();
         })
       )
@@ -24,7 +24,7 @@ module.exports = async (cwd, onCommit) => {
   });
 };
 
-function parseCommit(string) {
+const parseCommit = (string) => {
   const [sha, time, author, ...rest] = string.split("\n");
   const message = rest.join("\n");
   const expectations = extractExpectations(message);
@@ -46,7 +46,7 @@ function parseCommit(string) {
       branch,
     };
   }
-}
+};
 
 const extractExpectations = (message) => {
   return [...message.matchAll(METER_EXPECTATION_REGEX)].map(({ groups }) =>
