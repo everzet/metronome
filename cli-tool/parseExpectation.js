@@ -48,6 +48,18 @@ const validateExpectation = (expectation) => {
     };
   }
 
+  if (
+    expectation.measure.unit === "percent" &&
+    expectation.direction !== "increase_by" &&
+    expectation.direction !== "decrease_by"
+  ) {
+    return {
+      ok: false,
+      expectation,
+      error: `Percents can only be used with 'increase_by' or 'decrease_by' modifiers, but '${expectation.direction}' was given`,
+    };
+  }
+
   if (expectation.deadline <= expectation.fromDate) {
     return {
       ok: false,

@@ -140,6 +140,11 @@ test("validates consistency of resulting expectation", () => {
         "Strings can only be used with 'maintain' or 'become' modifiers, but 'increase_to' was given",
     },
     {
+      text: "c increase to 5% tomorrow",
+      err:
+        "Percents can only be used with 'increase_by' or 'decrease_by' modifiers, but 'increase_to' was given",
+    },
+    {
       text: "c increase to 5 last week",
       err: "Expectation deadlines can not be set in the past",
     },
