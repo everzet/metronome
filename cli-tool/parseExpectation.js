@@ -1,6 +1,6 @@
 const chrono = require("chrono-node");
 
-const EXPECTATION_REGEX = /^(?<metric>[a-zA-Z_]+(?:[a-zA-Z_0-9])?)\s+(?:will\s+)?(?<direction>(?:\+|\-|\~|increases? by|decreases? by|increases? to|decreases? to|is|to be|becomes?|stays? at|stays? around))?\s*(?<measure>(?:[0-9]+(?:\.[0-9]+)?\s*(?:\%|percent)|[0-9]+(?:\.[0-9]+)?|true|false|\"[^\"]+\"))\s+(?<timeline>.*)$/i;
+const EXPECTATION_REGEX = /^(?<metric>[a-zA-Z_]+(?:[a-zA-Z_0-9])?)\s+(?:will\s+)?(?<direction>(?:\+|\-|\~|increases? by|decreases? by|increases? to|decreases? to|is|to be|becomes?|stays? at|stays? around))?\s*(?<measure>(?:[0-9]+(?:\.[0-9]+)?\s*(?:\%|percent)|[0-9]+(?:\.[0-9]+)?|true|false|\'[^\']+\'|\"[^\"]+\"))\s+(?<timeline>.*)$/i;
 
 module.exports = (string, fromDate) => {
   const match = string.match(EXPECTATION_REGEX);
@@ -14,6 +14,46 @@ module.exports = (string, fromDate) => {
     fromDate,
     deadline: parseTimeline(groups.timeline, fromDate),
   };
+
+  return validateExpectation(expectation);
+};
+
+const validateExpectation = (expectation) => {
+  if (!expectation.direction || !expectation.measure || !expectation.deadline) {
+    return { ok: false, expectation, error: "Some details failed parsing" };
+  }
+
+  if (
+    expectation.measure.unit === "boolean" &&
+    expectation.direction !== "maintain" &&
+    expectation.direction !== "become"
+  ) {
+    return {
+      ok: false,
+      expectation,
+      error: `Booleans can only be used with 'maintain' or 'become' modifiers, but '${expectation.direction}' was given`,
+    };
+  }
+
+  if (
+    expectation.measure.unit === "string" &&
+    expectation.direction !== "maintain" &&
+    expectation.direction !== "become"
+  ) {
+    return {
+      ok: false,
+      expectation,
+      error: `Strings can only be used with 'maintain' or 'become' modifiers, but '${expectation.direction}' was given`,
+    };
+  }
+
+  if (expectation.deadline <= expectation.fromDate) {
+    return {
+      ok: false,
+      expectation,
+      error: "Expectation deadlines can not be set in the past",
+    };
+  }
 
   return { ok: true, expectation };
 };
@@ -58,6 +98,10 @@ const parseMeasure = (measure) => {
       unit: "percent",
     },
     {
+      regex: /^(?<value>[0-9]+(?:\.[0-9]+)?)$/i,
+      unit: "number",
+    },
+    {
       regex: /^(?<value>true|false)$/i,
       unit: "boolean",
     },
@@ -66,8 +110,8 @@ const parseMeasure = (measure) => {
       unit: "string",
     },
     {
-      regex: /^(?<value>[0-9]+(?:\.[0-9]+)?)$/i,
-      unit: "number",
+      regex: /^\'(?<value>[^\']+)\'$/i,
+      unit: "string",
     },
   ];
 

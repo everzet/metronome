@@ -88,6 +88,7 @@ test("properly parses different types of measures", () => {
     { text: "true", measure: { value: true, unit: "boolean" } },
     { text: "false", measure: { value: false, unit: "boolean" } },
     { text: '"str"', measure: { value: "str", unit: "string" } },
+    { text: "'str'", measure: { value: "str", unit: "string" } },
   ];
 
   cases.forEach(({ text, measure }) => {
@@ -122,5 +123,31 @@ test("properly parses different types of timelines", () => {
     const string = `conv becomes 2 ${text}`;
     const { expectation } = parseExpectaion(string, new Date());
     expect(expectation.deadline).toEqual(deadline);
+  });
+});
+
+test("validates consistency of resulting expectation", () => {
+  const cases = [
+    { text: "c +5 never", err: "Some details failed parsing" },
+    {
+      text: "c increase by true tomorrow",
+      err:
+        "Booleans can only be used with 'maintain' or 'become' modifiers, but 'increase_by' was given",
+    },
+    {
+      text: 'c increase to "Hello" tomorrow',
+      err:
+        "Strings can only be used with 'maintain' or 'become' modifiers, but 'increase_to' was given",
+    },
+    {
+      text: "c increase to 5 last week",
+      err: "Expectation deadlines can not be set in the past",
+    },
+  ];
+
+  cases.forEach(({ text, err }) => {
+    const { ok, expectation, error } = parseExpectaion(text, new Date());
+    expect(ok).toBe(false);
+    expect(error).toBe(err);
   });
 });
