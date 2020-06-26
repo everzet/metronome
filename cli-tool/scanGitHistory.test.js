@@ -18,8 +18,8 @@ test("does nothing for repository without matching commits", async () => {
   expect(onCommit.mock.calls.length).toBe(0);
 });
 
-test("triggers callback for commits with [meter-readings] in their subject", async () => {
-  repo.commit("metered commit [meter-readings]");
+test("triggers callback for commits with [meter-readings:...] in their subject", async () => {
+  repo.commit("metered commit [meter-readings:prod]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo.path, onCommit);
@@ -28,12 +28,13 @@ test("triggers callback for commits with [meter-readings] in their subject", asy
   const theCommit = onCommit.mock.calls[0][0];
 
   expect(theCommit.type).toEqual("readings");
+  expect(theCommit.branch).toEqual("prod");
   expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(theCommit.time).toBeTruthy();
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
-  repo.commit("metered commit\n\n[meter-readings]");
+  repo.commit("metered commit\n\n[meter-readings:test]");
 
   const onCommit = jest.fn();
   await scanGitHistory(repo.path, onCommit);
@@ -42,6 +43,7 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   const theCommit = onCommit.mock.calls[0][0];
 
   expect(theCommit.type).toEqual("readings");
+  expect(theCommit.branch).toEqual("test");
   expect(theCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(theCommit.time).toBeTruthy();
 });

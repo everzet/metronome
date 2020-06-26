@@ -7,8 +7,8 @@ const stringifyReadings = require("./stringifyReadings");
 const fileContains = require("./fileContains");
 const commitFile = require("./commitFile");
 
-const READINGS_MARK = "[meter-readings]";
-const COMMIT_MESSAGE = `:thermometer: Provide updated meter readings\n\n${READINGS_MARK}`;
+const COMMIT_MESSAGE = ":thermometer: Provide updated meter readings";
+const READINGS_MARK = (branch) => `[meter-readings:${branch}]`;
 
 async function main() {
   try {
@@ -38,7 +38,7 @@ async function main() {
         ref: `heads/${repoBranch}`,
         path: readingsPath,
         content: readingsString,
-        message: COMMIT_MESSAGE,
+        message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
       });
       core.info(
         `Committed reading changes to "${readingsPath}" via ${ref.sha}`

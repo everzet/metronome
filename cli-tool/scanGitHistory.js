@@ -3,10 +3,11 @@ const through = require("through2");
 
 const GIT_LOG_OPTIONS = {
   reverse: true,
-  grep: "\\[meter-readings\\]\\|\\[meter-expectation:",
+  grep: "\\[meter-readings:\\|\\[meter-expectation:",
   format: "%H\n%aI\n%an\n%B",
 };
 
+const METER_READINGS_REGEX = /\[meter-readings\:(?<branch>[^\]]+)\]/i;
 const METER_EXPECTATION_REGEX = /\[meter-expectation\:(?<expectation>[^\]]+)\]/gi;
 
 module.exports = async (cwd, onCommit) => {
@@ -27,6 +28,7 @@ function parseCommit(string) {
   const [sha, time, author, ...rest] = string.split("\n");
   const message = rest.join("\n");
   const expectations = extractExpectations(message);
+  const branch = extractBranch(message);
 
   if (expectations.length > 0) {
     return {
@@ -41,11 +43,22 @@ function parseCommit(string) {
       type: "readings",
       sha,
       time: Date.parse(time),
+      branch,
     };
   }
 }
 
-const extractExpectations = (message) =>
-  [...message.matchAll(METER_EXPECTATION_REGEX)].map(({ groups }) =>
+const extractExpectations = (message) => {
+  return [...message.matchAll(METER_EXPECTATION_REGEX)].map(({ groups }) =>
     groups.expectation.trim()
   );
+};
+
+const extractBranch = (message) => {
+  const match = message.match(METER_READINGS_REGEX);
+  if (match) {
+    return match.groups.branch;
+  } else {
+    return null;
+  }
+};
