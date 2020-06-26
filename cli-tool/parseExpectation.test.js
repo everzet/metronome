@@ -7,14 +7,14 @@ test("returns null if invalid text is given", () => {
   });
 });
 
-test("extracts metric, direction, measure and deadline from text", () => {
+test("extracts meter, direction, measure and deadline from text", () => {
   const string = "conversionRate +2% in 1 month";
   const fromDate = new Date("2020-06-26T10:46:19+01:00");
 
   const { expectation } = parseExpectaion(string, fromDate);
 
   expect(expectation).not.toBeNull();
-  expect(expectation.metric).toBe("conversionRate");
+  expect(expectation.meter).toBe("conversionRate");
   expect(expectation.direction).toBe("increase_by");
   expect(expectation.measure.value).toEqual(2.0);
   expect(expectation.measure.unit).toBe("percent");
@@ -29,7 +29,7 @@ test("complex string in a very natural language", () => {
   const { expectation } = parseExpectaion(string, fromDate);
 
   expect(expectation).not.toBeNull();
-  expect(expectation.metric).toBe("conversion");
+  expect(expectation.meter).toBe("conversion");
   expect(expectation.direction).toBe("increase_to");
   expect(expectation.measure.value).toEqual(5.5);
   expect(expectation.measure.unit).toBe("number");
