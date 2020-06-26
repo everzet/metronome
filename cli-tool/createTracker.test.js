@@ -2,7 +2,6 @@ const createTracker = require("./createTracker");
 
 const expectationBaseline = {
   meter: "conversion",
-  measure: { value: 5.0, unit: "percent" },
   fromDate: new Date("2018-06-26T12:00:00.000Z"),
   deadline: new Date("2018-07-26T12:00:00.000Z"),
 };
@@ -10,8 +9,8 @@ const expectationBaseline = {
 describe("any tracker", () => {
   const expectation = {
     ...expectationBaseline,
-    string: "conversion will increase by 5% in 1 month",
     direction: "increase_by",
+    measure: { value: 5.0, unit: "percent" },
   };
 
   test("stores expectation", () => {
@@ -102,9 +101,149 @@ describe("any tracker", () => {
   });
 });
 
-describe("increase_by tracker", () => {});
+describe("increase_by tracker", () => {
+  const expectation = {
+    ...expectationBaseline,
+    direction: "increase_by",
+    measure: { value: 5.0, unit: "percent" },
+  };
 
-describe("decrease_by tracker", () => {});
+  test("hasMetExpectation returns false when there are no tracked readings", () => {
+    const tracker = createTracker(expectation);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is just one tracked reading", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is no increase between readings", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when the increase does not match percent", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.4, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the increase does match percent", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.416, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns false when the increase does not match number", () => {
+    const tracker = createTracker({
+      ...expectation,
+      measure: { value: 5.0, unit: "number" },
+    });
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 3.3, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the increase does match number", () => {
+    const tracker = createTracker({
+      ...expectation,
+      measure: { value: 5.0, unit: "number" },
+    });
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 8.0, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+});
+
+describe("decrease_by tracker", () => {
+  const expectation = {
+    ...expectationBaseline,
+    direction: "decrease_by",
+    measure: { value: 5.0, unit: "percent" },
+  };
+
+  test("hasMetExpectation returns false when there are no tracked readings", () => {
+    const tracker = createTracker(expectation);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is just one tracked reading", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is no decrease between readings", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when the decrease does not match percent", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.2, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the increase does match percent", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.184, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns false when the increase does not match number", () => {
+    const tracker = createTracker({
+      ...expectation,
+      measure: { value: 1.0, unit: "number" },
+    });
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 2.0, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the increase does match number", () => {
+    const tracker = createTracker({
+      ...expectation,
+      measure: { value: 1.0, unit: "number" },
+    });
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-27") },
+      { meter: "conversion", value: 1.2, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+});
 
 describe("increase_to tracker", () => {});
 

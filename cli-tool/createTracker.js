@@ -1,13 +1,47 @@
 module.exports = (expectation) => {
+  const tracker = createReadingsTracker(expectation);
+
   switch (expectation.direction) {
     case "increase_by":
-      const tracker = createReadingsTracker(expectation);
-      return { ...tracker };
+      return {
+        ...tracker,
+        hasMetExpectation: () =>
+          readingsIncreasedBy(tracker.trackedReadings(), expectation.measure)
+            .length > 0,
+      };
     case "decrease_by":
-    case "increase_to":
-    case "decrease_to":
-    case "maintain":
-    case "become":
+      return {
+        ...tracker,
+        hasMetExpectation: () =>
+          readingsDecreasedBy(tracker.trackedReadings(), expectation.measure)
+            .length > 0,
+      };
+  }
+};
+
+const readingsIncreasedBy = (readings, measure) => {
+  if (readings.length < 2) return [];
+  const [baseline, ...since] = readings;
+  const expectedValue = baseline.value + expectedDelta(baseline, measure);
+  return since.filter((reading) => reading.value >= expectedValue);
+};
+
+const readingsDecreasedBy = (readings, measure) => {
+  if (readings.length < 2) return [];
+  const [baseline, ...since] = readings;
+  const expectedValue = baseline.value - expectedDelta(baseline, measure);
+  return since.filter((reading) => reading.value <= expectedValue);
+};
+
+const expectedDelta = (baseline, measure) => {
+  if (measure.unit !== "percent" && measure.unit !== "number") {
+    throw `Wrong measure given. Expected percent or number, but '${measure.unit}' was given`;
+  }
+
+  if (measure.unit === "percent") {
+    return (baseline.value * measure.value) / 100;
+  } else {
+    return measure.value;
   }
 };
 
@@ -40,10 +74,3 @@ const createReadingsTracker = (expectation) => {
     deadlineReached,
   };
 };
-
-//
-// conversion will increase to 5.5 in three weeks from now
-//
-// wasExpectationMet()
-// doesLastReadingMeetExpectation()
-//
