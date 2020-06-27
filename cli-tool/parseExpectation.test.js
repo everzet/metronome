@@ -3,6 +3,7 @@ const parseExpectaion = require("./parseExpectation");
 test("returns null if invalid text is given", () => {
   expect(parseExpectaion("invalid_text", new Date())).toEqual({
     ok: false,
+    string: "invalid_text",
     error: "Parse error",
   });
 });
@@ -89,6 +90,7 @@ test("properly parses different types of measures", () => {
     { text: "false", measure: { value: false, unit: "boolean" } },
     { text: '"str"', measure: { value: "str", unit: "string" } },
     { text: "'str'", measure: { value: "str", unit: "string" } },
+    { text: "`str`", measure: { value: "str", unit: "string" } },
   ];
 
   cases.forEach(({ text, measure }) => {
