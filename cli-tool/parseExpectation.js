@@ -25,6 +25,18 @@ const validateExpectation = (expectation) => {
   }
 
   if (
+    expectation.measure.unit === "number" &&
+    expectation.direction === "become"
+  ) {
+    return {
+      ok: false,
+      expectation,
+      error:
+        "Numbers must not be used with 'become' modifiers. Use 'increase_to' or 'decrease_to' instead",
+    };
+  }
+
+  if (
     expectation.measure.unit === "boolean" &&
     expectation.direction !== "maintain" &&
     expectation.direction !== "become"

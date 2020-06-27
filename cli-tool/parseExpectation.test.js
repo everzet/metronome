@@ -148,6 +148,11 @@ test("validates consistency of resulting expectation", () => {
       text: "c increase to 5 last week",
       err: "Expectation deadlines can not be set in the past",
     },
+    {
+      text: "c become 5 tomorrow",
+      err:
+        "Numbers must not be used with 'become' modifiers. Use 'increase_to' or 'decrease_to' instead",
+    },
   ];
 
   cases.forEach(({ text, err }) => {
