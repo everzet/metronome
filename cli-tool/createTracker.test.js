@@ -38,6 +38,42 @@ describe("any tracker", () => {
     );
   });
 
+  test("ignores readings of unsupported types", () => {
+    const cases = [
+      {
+        measure: { value: 5.0, unit: "percent" },
+        validValues: [5.0],
+        invalidValues: [true, false, "str"],
+      },
+      {
+        measure: { value: 5.0, unit: "number" },
+        validValues: [5.0],
+        invalidValues: [true, false, "str"],
+      },
+      {
+        measure: { value: true, unit: "boolean" },
+        validValues: [true, false],
+        invalidValues: [5.0, "str"],
+      },
+      {
+        measure: { value: "str", unit: "string" },
+        validValues: ["a", "b"],
+        invalidValues: [5.0, true, false],
+      },
+    ];
+
+    cases.forEach(({ measure, invalidValues, validValues }) => {
+      const tracker = createTracker({ ...expectation, measure });
+      const meter = "conversion";
+      [].concat(validValues, invalidValues).forEach((value) => {
+        const date = new Date("2018-06-27T12:00:00.000Z");
+        tracker.track([{ meter, value, date }]);
+      });
+      const trackedValues = tracker.trackedReadings().map(({ value }) => value);
+      expect(trackedValues).toEqual(validValues);
+    });
+  });
+
   test("ignores the readings that are not relevant to the expectation", () => {
     const tracker = createTracker(expectation);
     tracker.track([{ meter: "someOtherMeter", value: 0.5, date: new Date() }]);
@@ -397,7 +433,11 @@ describe("become tracker", () => {
     });
     tracker.track([
       { meter: "teamFeeling", value: "happy", date: new Date("2018-06-28") },
-      { meter: "teamFeeling", value: "concerned", date: new Date("2018-06-28") },
+      {
+        meter: "teamFeeling",
+        value: "concerned",
+        date: new Date("2018-06-28"),
+      },
     ]);
     expect(tracker.hasMetExpectation()).toBe(false);
   });

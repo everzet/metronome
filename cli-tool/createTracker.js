@@ -93,15 +93,20 @@ const createReadingsTracker = (expectation) => {
     readingDate !== null && readingDate > expectation.deadline;
 
   const track = (newReadings) => {
-    const trackedMeterReadings = newReadings.filter(
-      ({ meter }) => meter === expectation.meter
-    );
-    const readingBeforeDeadline = trackedMeterReadings.filter(
+    const trackedReadings = newReadings
+      .filter(({ meter }) => meter === expectation.meter)
+      .filter(
+        ({ value }) =>
+          typeof value === expectation.measure.unit ||
+          (typeof value === "number" && expectation.measure.unit === "percent")
+      );
+
+    const trackedReadingsBeforeDeadline = trackedReadings.filter(
       (reading) => reading.date < expectation.deadline
     );
 
-    trackedMeterReadings.forEach(({ date }) => (readingDate = date));
-    readings = [...readings, ...readingBeforeDeadline];
+    trackedReadings.forEach(({ date }) => (readingDate = date));
+    readings = [...readings, ...trackedReadingsBeforeDeadline];
   };
 
   return {
