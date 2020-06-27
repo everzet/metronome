@@ -121,7 +121,7 @@ test("properly parses different types of timelines", () => {
 
   cases.forEach(({ text, deadline }) => {
     const string = `conv becomes 2 ${text}`;
-    const { expectation } = parseExpectaion(string, new Date());
+    const { expectation } = parseExpectaion(string, fromDate);
     expect(expectation.deadline).toEqual(deadline);
   });
 });
