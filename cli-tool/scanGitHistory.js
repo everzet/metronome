@@ -16,8 +16,7 @@ module.exports = async (cwd, onCommit) => {
       .pipe(
         through((message, encoding, callback) => {
           const parsedCommit = parseCommit(message.toString());
-          onCommit(parsedCommit);
-          callback();
+          onCommit(parsedCommit).then(callback);
         })
       )
       .on("finish", done);
