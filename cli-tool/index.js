@@ -1,55 +1,58 @@
+const yargs = require("yargs");
+const chalk = require("chalk");
+const print = console.log;
+
 const scanGitHistory = require("./scanGitHistory");
 const parseReadings = require("./parseReadings");
 const parseExpectation = require("./parseExpectation");
 const createTracker = require("./createTracker");
 
-const path = process.cwd();
-let readings = [];
-let trackers = [];
+yargs.command(
+  "run",
+  "analyse current repository branch",
+  (yargs) => yargs,
+  analyse
+).argv;
 
-try {
-  (async () => {
-    await scanGitHistory(path, async (commit) => {
-      if (commit.type === "readings") {
-        [parseReadings(commit)]
-          .filter(({ ok }) => ok)
-          .forEach(({ readings: newReadings }) => {
-            readings = newReadings;
-            trackers.forEach((tracker) => tracker.track(readings));
-          });
-      } else if (commit.type === "expectations") {
-        commit.expectations
-          .map((expectation) => parseExpectation(expectation, commit.date))
-          .filter(({ ok }) => ok)
-          .map(({ expectation }) => expectation)
-          .map(createTracker)
-          .forEach((tracker) => {
-            tracker.track(readings);
-            trackers.push(tracker);
-          });
-      }
-    });
+async function analyse(argv) {
+  const path = process.cwd();
+  let readings = [];
+  let trackers = [];
 
-    const inProgress = trackers.filter((tracker) => !tracker.reachedDeadline());
-    const complete = trackers.filter((tracker) => tracker.reachedDeadline());
-    const success = complete.filter((tracker) => tracker.hasMetExpectation());
-    const failure = complete.filter((tracker) => !tracker.hasMetExpectation());
+  await scanGitHistory(path, async (commit) => {
+    if (commit.type === "readings") {
+      [parseReadings(commit)]
+        .filter(({ ok }) => ok)
+        .forEach(({ readings: newReadings }) => {
+          readings = newReadings;
+          trackers.forEach((tracker) => tracker.track(readings));
+        });
+    } else if (commit.type === "expectations") {
+      commit.expectations
+        .map((expectation) => parseExpectation(expectation, commit.date))
+        .filter(({ ok }) => ok)
+        .map(({ expectation }) => expectation)
+        .map(createTracker)
+        .forEach((tracker) => {
+          tracker.track(readings);
+          trackers.push(tracker);
+        });
+    }
+  });
 
-    console.log("Successful:");
-    success.forEach(({ expectation }) =>
-      console.log(`  - ${expectation.string}`)
-    );
+  const inProgress = trackers.filter((tracker) => !tracker.reachedDeadline());
+  const complete = trackers.filter((tracker) => tracker.reachedDeadline());
+  const success = complete.filter((tracker) => tracker.hasMetExpectation());
+  const failure = complete.filter((tracker) => !tracker.hasMetExpectation());
 
-    console.log("Failed:");
-    failure.forEach(({ expectation }) =>
-      console.log(`  - ${expectation.string}`)
-    );
+  print(chalk`
+{green Successful:}
+${success.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
 
-    console.log("In progress:");
-    inProgress.forEach(({ expectation }) =>
-      console.log(`  - ${expectation.string}`)
-    );
-  })();
-} catch (e) {
-  console.error(e);
+{red Failed:}
+${failure.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
+
+{yellow In progress:}
+${inProgress.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
+    `);
 }

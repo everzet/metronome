@@ -58,7 +58,10 @@ employee_feeling = "concerned"
 
   // run analysis
   const output = childProcess
-    .execSync(`node ${__dirname}/index.js`, { cwd: repo.path })
+    .execSync(`node ${__dirname}/index.js run`, {
+      cwd: repo.path,
+      env: { ...process.env, FORCE_COLOR: 0 },
+    })
     .toString()
     .trim();
 
@@ -66,8 +69,10 @@ employee_feeling = "concerned"
     `
 Successful:
   - desktop_conversion_rate will increase by 30% in 2 weeks
+
 Failed:
   - employee_feeling will become 'happy' in 2 weeks
+
 In progress:
   - net_promoter_score will increase to 8 in 1 month
 `.trim()
