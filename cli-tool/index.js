@@ -1,36 +1,34 @@
-const TOML = require("@iarna/toml");
 const scanGitHistory = require("./scanGitHistory");
 const catFirstFileAtRevision = require("./catFirstFileAtRevision");
+const parseReadings = require("./parseReadings");
 const parseExpectation = require("./parseExpectation");
 const createTracker = require("./createTracker");
 
-const wd = process.cwd();
+const path = process.cwd();
 let readings = [];
 let trackers = [];
 
 try {
   (async () => {
-    await scanGitHistory(wd, async (commit) => {
+    await scanGitHistory(path, async (commit) => {
       if (commit.type === "readings") {
-        const { path, content } = await catFirstFileAtRevision(wd, commit.sha);
-        readings = [...Object.entries(TOML.parse(content))].map(
-          ([meter, value]) => ({
-            meter,
-            value,
-            date: commit.date,
-          })
-        );
-        trackers.forEach((tracker) => tracker.track(readings));
+        const file = await catFirstFileAtRevision(path, commit.sha);
+        [parseReadings({ ...commit, ...file })]
+          .filter(({ ok }) => ok)
+          .forEach(({ readings: newReadings }) => {
+            readings = newReadings;
+            trackers.forEach((tracker) => tracker.track(readings));
+          });
       } else if (commit.type === "expectations") {
-        const expectations = commit.expectations
+        commit.expectations
           .map((expectation) => parseExpectation(expectation, commit.date))
           .filter(({ ok }) => ok)
-          .map(({ expectation }) => expectation);
-
-        const newTrackers = expectations.map(createTracker);
-
-        newTrackers.forEach((tracker) => tracker.track(readings));
-        trackers = [...trackers, ...newTrackers];
+          .map(({ expectation }) => expectation)
+          .map(createTracker)
+          .forEach((tracker) => {
+            tracker.track(readings);
+            trackers.push(tracker);
+          });
       }
     });
 
