@@ -17,6 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "chrono-node": "^1.4.6",
     "git-raw-commits": "^2.0.7",
     "through2": "^3.0.2"
