@@ -17,7 +17,19 @@ module.exports = (expectation) => {
             .length > 0,
       };
     case "increase_to":
+      return {
+        ...tracker,
+        hasMetExpectation: () =>
+          readingsAbove(tracker.trackedReadings(), expectation.measure).length >
+          0,
+      };
     case "decrease_to":
+      return {
+        ...tracker,
+        hasMetExpectation: () =>
+          readingsBelow(tracker.trackedReadings(), expectation.measure).length >
+          0,
+      };
     case "maintain":
     case "become":
       throw `Sorry, but ${expectation.direction} expectations are not supported yet`;
@@ -36,6 +48,16 @@ const readingsDecreasedBy = (readings, measure) => {
   const [baseline, ...since] = readings;
   const expectedValue = baseline.value - expectedDelta(baseline, measure);
   return since.filter((reading) => reading.value <= expectedValue);
+};
+
+const readingsAbove = (readings, measure) => {
+  if (readings.length < 1) return [];
+  return readings.filter((reading) => reading.value >= measure.value);
+};
+
+const readingsBelow = (readings, measure) => {
+  if (readings.length < 1) return [];
+  return readings.filter((reading) => reading.value <= measure.value);
 };
 
 const expectedDelta = (baseline, measure) => {

@@ -246,17 +246,85 @@ describe("decrease_by tracker", () => {
 });
 
 describe("increase_to tracker", () => {
-  // Allow number and above
+  const expectation = {
+    ...expectationBaseline,
+    direction: "increase_to",
+    measure: { value: 5.0, unit: "number" },
+  };
+
+  test("hasMetExpectation returns false when there are no tracked readings", () => {
+    const tracker = createTracker(expectation);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is no reading at or above target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 3.3, date: new Date("2018-06-28") },
+      { meter: "conversion", value: 4.9, date: new Date("2018-06-29") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when there is a reading at target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 5.0, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns true when there is a reading above target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 5.2, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
 });
 
 describe("decrease_to tracker", () => {
-  // Allow number and below
-});
+  const expectation = {
+    ...expectationBaseline,
+    direction: "decrease_to",
+    measure: { value: 2.0, unit: "number" },
+  };
 
-describe("maintain tracker", () => {
-  // Allow number/boolean/string with low percent deviation
+  test("hasMetExpectation returns false when there are no tracked readings", () => {
+    const tracker = createTracker(expectation);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is no reading at or below target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.3, date: new Date("2018-06-28") },
+      { meter: "conversion", value: 3.9, date: new Date("2018-06-29") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when there is a reading at target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 2.0, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns true when there is a reading below target", () => {
+    const tracker = createTracker(expectation);
+    tracker.track([
+      { meter: "conversion", value: 1.9, date: new Date("2018-06-27") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
 });
 
 describe("become tracker", () => {
-  // Allow number/boolean/string with high percent stability
+  // TODO: Allow number/boolean/string with high percent stability
+});
+
+describe("maintain tracker", () => {
+  // TODO: Allow number/boolean/string with low percent deviation
 });
