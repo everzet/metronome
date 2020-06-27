@@ -1,26 +1,37 @@
 const fs = require("fs");
 const childProcess = require("child_process");
 
-module.exports = () => {
+module.exports = (params) => {
   const path = fs.mkdtempSync("scanGitHistoryTest");
-  init(path);
+  init(path, params);
 
   return {
     path,
-    commit: (message, contents) => commit(path, message, contents),
+    commit: (message, params) => commit(path, message, params),
     lastCommitSha: () => lastCommitSha(path),
     destroy: () => fs.rmdirSync(path, { recursive: true }),
   };
 };
 
-const init = (cwd) => {
+const init = (cwd, params) => {
   childProcess.execSync("git init", { cwd });
   childProcess.execSync('git config user.name "everzet"', { cwd });
   childProcess.execSync('git config user.email "me@me.com"', { cwd });
-  commit(cwd, "initial commit");
+  commit(cwd, "initial commit", params);
 };
 
-const commit = (cwd, message, contents = `${Math.random()}`) => {
+const commit = (cwd, message, params = {}) => {
+  let env = process.env;
+  if (params.date) {
+    env = {
+      ...env,
+      GIT_AUTHOR_DATE: `${params.date}`,
+      GIT_COMMITTER_DATE: `${params.date}`,
+    };
+  }
+
+  const contents = params.contents ? params.contents : `${Math.random()}`;
+
   if (Array.isArray(contents)) {
     contents.forEach((content, idx) =>
       fs.writeFileSync(`${cwd}/file${idx + 1}`, content)
@@ -29,8 +40,8 @@ const commit = (cwd, message, contents = `${Math.random()}`) => {
     fs.writeFileSync(`${cwd}/file`, contents);
   }
 
-  childProcess.execSync("git add .", { cwd });
-  childProcess.execSync(`git commit -m "${message}"`, { cwd });
+  childProcess.execSync("git add .", { cwd, env });
+  childProcess.execSync(`git commit -m "${message}"`, { cwd, env });
 };
 
 const lastCommitSha = (cwd) => {
