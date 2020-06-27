@@ -1,5 +1,6 @@
 const gitRawCommits = require("git-raw-commits");
 const through = require("through2");
+const catFirstFileAtRevision = require("./catFirstFileAtRevision");
 
 const GIT_LOG_OPTIONS = {
   reverse: true,
@@ -15,15 +16,14 @@ module.exports = async (cwd, onCommit) => {
     gitRawCommits(GIT_LOG_OPTIONS, { cwd })
       .pipe(
         through((message, encoding, callback) => {
-          const parsedCommit = parseCommit(message.toString());
-          onCommit(parsedCommit).then(callback);
+          parseCommit(cwd, message.toString()).then(onCommit).then(callback);
         })
       )
       .on("finish", done);
   });
 };
 
-const parseCommit = (string) => {
+const parseCommit = async (cwd, string) => {
   const [sha, date, author, ...rest] = string.split("\n");
   const message = rest.join("\n");
   const expectations = extractExpectations(message);
@@ -38,7 +38,10 @@ const parseCommit = (string) => {
       expectations,
     };
   } else {
+    const file = await catFirstFileAtRevision(cwd, sha);
+
     return {
+      ...file,
       type: "readings",
       sha,
       date: new Date(date),

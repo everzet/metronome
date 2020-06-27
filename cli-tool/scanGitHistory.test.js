@@ -48,6 +48,20 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   expect(parsedCommit.date).toBeTruthy();
 });
 
+test("fetches file path and content for [meter-readings] commits", async () => {
+  repo.commit("[meter-readings:prod]", { contents: "file content" });
+
+  const onCommit = jest.fn(async () => null);
+  await scanGitHistory(repo.path, onCommit);
+
+  expect(onCommit.mock.calls.length).toBe(1);
+  const parsedCommit = onCommit.mock.calls[0][0];
+
+  expect(parsedCommit.type).toEqual("readings");
+  expect(parsedCommit.path).toEqual("file");
+  expect(parsedCommit.content).toEqual("file content");
+});
+
 test("triggers callback for commits with [meter-expectation: ...] in their body", async () => {
   repo.commit("commit [meter-expectation: some assumption text]");
 

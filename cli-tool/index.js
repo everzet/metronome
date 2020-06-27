@@ -1,5 +1,4 @@
 const scanGitHistory = require("./scanGitHistory");
-const catFirstFileAtRevision = require("./catFirstFileAtRevision");
 const parseReadings = require("./parseReadings");
 const parseExpectation = require("./parseExpectation");
 const createTracker = require("./createTracker");
@@ -12,8 +11,7 @@ try {
   (async () => {
     await scanGitHistory(path, async (commit) => {
       if (commit.type === "readings") {
-        const file = await catFirstFileAtRevision(path, commit.sha);
-        [parseReadings({ ...commit, ...file })]
+        [parseReadings(commit)]
           .filter(({ ok }) => ok)
           .forEach(({ readings: newReadings }) => {
             readings = newReadings;
