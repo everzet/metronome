@@ -89,7 +89,7 @@ const createReadingsTracker = (expectation) => {
 
   const trackedReadings = () => readings;
   const lastViewedReadingDate = () => readingDate;
-  const deadlineReached = () =>
+  const reachedDeadline = () =>
     readingDate !== null && readingDate > expectation.deadline;
 
   const track = (newReadings) => {
@@ -114,6 +114,6 @@ const createReadingsTracker = (expectation) => {
     track,
     trackedReadings,
     lastViewedReadingDate,
-    deadlineReached,
+    reachedDeadline,
   };
 };

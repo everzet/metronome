@@ -107,12 +107,12 @@ describe("any tracker", () => {
     );
   });
 
-  test("deadlineReached returns false when lastViewedReadingDate is null (no readings)", () => {
+  test("reachedDeadline returns false when lastViewedReadingDate is null (no readings)", () => {
     const tracker = createTracker(expectation);
-    expect(tracker.deadlineReached()).toBe(false);
+    expect(tracker.reachedDeadline()).toBe(false);
   });
 
-  test("deadlineReached returns false when all given readings were earlier than deadline", () => {
+  test("reachedDeadline returns false when all given readings were earlier than deadline", () => {
     const tracker = createTracker(expectation);
     tracker.track([
       {
@@ -121,10 +121,10 @@ describe("any tracker", () => {
         date: new Date("2018-07-24T12:00:00.000Z"),
       },
     ]);
-    expect(tracker.deadlineReached()).toBe(false);
+    expect(tracker.reachedDeadline()).toBe(false);
   });
 
-  test("deadlineReached returns true if at least one reading was post deadline", () => {
+  test("reachedDeadline returns true if at least one reading was post deadline", () => {
     const tracker = createTracker(expectation);
     tracker.track([
       {
@@ -133,7 +133,7 @@ describe("any tracker", () => {
         date: new Date("2018-07-28T12:00:00.000Z"),
       },
     ]);
-    expect(tracker.deadlineReached()).toBe(true);
+    expect(tracker.reachedDeadline()).toBe(true);
   });
 });
 
