@@ -5,18 +5,22 @@ module.exports = async (cwd, sha) => {
     childProcess.exec(
       `git show --pretty="" --name-only ${sha}`,
       { cwd },
-      (err, out) => {
-        if (err) return error(e);
-        done(out.toString().trim().split("\n")[0]);
+      (err, stdout, stderr) => {
+        if (err) return error(stderr);
+        done(stdout.toString().trim().split("\n")[0]);
       }
     );
   }).then(
     (path) =>
       new Promise((done, error) => {
-        childProcess.exec(`git show ${sha}:${path}`, { cwd }, (err, out) => {
-          if (err) return error(e);
-          done({ path, content: out.toString() });
-        });
+        childProcess.exec(
+          `git show ${sha}:${path}`,
+          { cwd },
+          (err, stdout, stderr) => {
+            if (err) return error(stderr);
+            done({ path, content: stdout.toString() });
+          }
+        );
       })
   );
 };
