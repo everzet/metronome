@@ -30,7 +30,7 @@ test("triggers callback for commits with [meter-readings:...] in their subject",
   expect(parsedCommit.type).toEqual("readings");
   expect(parsedCommit.branch).toEqual("prod");
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(parsedCommit.time).toBeTruthy();
+  expect(parsedCommit.date).toBeTruthy();
 });
 
 test("triggers callback for commits with [meter-readings] in their body", async () => {
@@ -45,7 +45,7 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   expect(parsedCommit.type).toEqual("readings");
   expect(parsedCommit.branch).toEqual("test");
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
-  expect(parsedCommit.time).toBeTruthy();
+  expect(parsedCommit.date).toBeTruthy();
 });
 
 test("triggers callback for commits with [meter-expectation: ...] in their body", async () => {
@@ -61,7 +61,7 @@ test("triggers callback for commits with [meter-expectation: ...] in their body"
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.author).toEqual("everzet");
   expect(parsedCommit.expectations).toEqual(["some assumption text"]);
-  expect(parsedCommit.time).toBeTruthy();
+  expect(parsedCommit.date).toBeTruthy();
 });
 
 test("handles commits with multiple expectations", async () => {

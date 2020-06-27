@@ -24,7 +24,7 @@ module.exports = async (cwd, onCommit) => {
 };
 
 const parseCommit = (string) => {
-  const [sha, time, author, ...rest] = string.split("\n");
+  const [sha, date, author, ...rest] = string.split("\n");
   const message = rest.join("\n");
   const expectations = extractExpectations(message);
   const branch = extractBranch(message);
@@ -34,14 +34,14 @@ const parseCommit = (string) => {
       type: "expectations",
       sha,
       author,
-      time: Date.parse(time),
+      date: new Date(date),
       expectations,
     };
   } else {
     return {
       type: "readings",
       sha,
-      time: Date.parse(time),
+      date: new Date(date),
       branch,
     };
   }
