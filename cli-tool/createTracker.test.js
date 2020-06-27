@@ -322,7 +322,85 @@ describe("decrease_to tracker", () => {
 });
 
 describe("become tracker", () => {
-  // TODO: Allow number/boolean/string with high percent stability
+  const expectation = {
+    ...expectationBaseline,
+    meter: "gdprCompliant",
+    direction: "become",
+    measure: { value: true, unit: "boolean" },
+  };
+
+  test("hasMetExpectation returns false when there are no tracked readings", () => {
+    const tracker = createTracker(expectation);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns false when there is no reading matching boolean", () => {
+    const tracker = createTracker({
+      ...expectation,
+      meter: "gdprCompliant",
+      direction: "become",
+      measure: { value: true, unit: "boolean" },
+    });
+    tracker.track([
+      { meter: "gdprCompliant", value: false, date: new Date("2018-06-28") },
+      { meter: "gdprCompliant", value: false, date: new Date("2018-06-29") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the reading matching boolean is the last", () => {
+    const tracker = createTracker({
+      ...expectation,
+      meter: "gdprCompliant",
+      direction: "become",
+      measure: { value: true, unit: "boolean" },
+    });
+    tracker.track([
+      { meter: "gdprCompliant", value: true, date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns false when the reading matching boolean is not the last", () => {
+    const tracker = createTracker({
+      ...expectation,
+      meter: "gdprCompliant",
+      direction: "become",
+      measure: { value: true, unit: "boolean" },
+    });
+    tracker.track([
+      { meter: "gdprCompliant", value: true, date: new Date("2018-06-28") },
+      { meter: "gdprCompliant", value: false, date: new Date("2018-06-29") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
+
+  test("hasMetExpectation returns true when the reading matching string is the last", () => {
+    const tracker = createTracker({
+      ...expectation,
+      meter: "teamFeeling",
+      direction: "become",
+      measure: { value: "happy", unit: "string" },
+    });
+    tracker.track([
+      { meter: "teamFeeling", value: "happy", date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(true);
+  });
+
+  test("hasMetExpectation returns false when the reading matching string is not the last", () => {
+    const tracker = createTracker({
+      ...expectation,
+      meter: "teamFeeling",
+      direction: "become",
+      measure: { value: "happy", unit: "string" },
+    });
+    tracker.track([
+      { meter: "teamFeeling", value: "happy", date: new Date("2018-06-28") },
+      { meter: "teamFeeling", value: "concerned", date: new Date("2018-06-28") },
+    ]);
+    expect(tracker.hasMetExpectation()).toBe(false);
+  });
 });
 
 describe("maintain tracker", () => {
