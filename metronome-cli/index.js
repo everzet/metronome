@@ -7,14 +7,27 @@ const parseReadings = require("./parseReadings");
 const parseExpectation = require("./parseExpectation");
 const createTracker = require("./createTracker");
 
-yargs.command(
-  "run",
-  "analyse current repository branch",
-  (yargs) => yargs,
-  analyse
-).argv;
+yargs
+  .command(
+    "check",
+    "check set expectations against meter readings",
+    (yargs) => yargs,
+    check
+  )
+  .command(
+    "readings",
+    "show all current meter readings",
+    (yargs) => yargs,
+    async (argv) => argv
+  )
+  .command(
+    "validate-commit",
+    "validate commit body",
+    (yargs) => yargs,
+    async (argv) => argv
+  ).argv;
 
-async function analyse(argv) {
+async function check(argv) {
   const workingPath = process.cwd();
   const workingBranch = "master";
   const scanFrom = "";
