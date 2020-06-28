@@ -11,17 +11,17 @@ const READINGS_MARK = (env) => `[meter-readings:${env}]`;
 async function main() {
   try {
     // Repository inputs
+    const commitToken = core.getInput("commit-token");
+    const commitBranch = core.getInput("commit-branch");
     const repoOwnerAndName = github.context.repo;
-    const commitToken = core.getInput("repo-token");
-    const commitBranch = core.getInput("readings-branch");
     const octokit = github.getOctokit(commitToken);
 
-    // Meters & Readings file inputs
+    // Meters & Readings inputs
     const readingsEnv = core.getInput("readings-env");
-    const metersScript = core.getInput("meters-script");
     const readingsPath = core
       .getInput("readings-path")
       .replace("${readings-env}", readingsEnv);
+    const metersScript = core.getInput("meters-script");
 
     // Produce readings
     const meters = require(path.resolve(metersScript));
