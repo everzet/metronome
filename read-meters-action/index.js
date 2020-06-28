@@ -4,7 +4,6 @@ const github = require("@actions/github");
 
 const readMeters = require("./readMeters");
 const stringifyReadings = require("./stringifyReadings");
-const fileContains = require("./fileContains");
 const commitFile = require("./commitFile");
 
 const COMMIT_MESSAGE = ":thermometer: Provide updated meter readings";
@@ -28,21 +27,22 @@ async function main() {
     const readings = await readMeters(meters);
     const readingsString = stringifyReadings(readings);
 
-    // Commit readings into repo, if changed
-    if (fileContains(path.resolve(readingsPath), readingsString)) {
-      core.info("No change in readings, skipping commit");
-    } else {
-      const ref = await commitFile({
-        git: github.getOctokit(repoToken).git,
-        repo: repoOwnerAndName,
-        ref: `heads/${repoBranch}`,
-        path: readingsPath,
-        content: readingsString,
-        message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
-      });
+    // Commit changes to the branch
+    const commit = await commitFile({
+      octokit: github.getOctokit(repoToken),
+      repo: repoOwnerAndName,
+      branch: repoBranch,
+      path: readingsPath,
+      content: readingsString,
+      message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
+    });
+
+    if (commit.ok) {
       core.info(
-        `Committed reading changes to "${readingsPath}" via ${ref.sha}`
+        `Committed reading changes to "${readingsPath}" via ${commit.sha}`
       );
+    } else if (commit.reason === "same_content") {
+      core.info("No change in readings, skipping commit");
     }
 
     core.setOutput("readings", readings);

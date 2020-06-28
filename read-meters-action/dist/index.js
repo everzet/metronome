@@ -777,7 +777,6 @@ const github = __webpack_require__(469);
 
 const readMeters = __webpack_require__(594);
 const stringifyReadings = __webpack_require__(15);
-const fileContains = __webpack_require__(561);
 const commitFile = __webpack_require__(426);
 
 const COMMIT_MESSAGE = ":thermometer: Provide updated meter readings";
@@ -801,21 +800,22 @@ async function main() {
     const readings = await readMeters(meters);
     const readingsString = stringifyReadings(readings);
 
-    // Commit readings into repo, if changed
-    if (fileContains(path.resolve(readingsPath), readingsString)) {
-      core.info("No change in readings, skipping commit");
-    } else {
-      const ref = await commitFile({
-        git: github.getOctokit(repoToken).git,
-        repo: repoOwnerAndName,
-        ref: `heads/${repoBranch}`,
-        path: readingsPath,
-        content: readingsString,
-        message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
-      });
+    // Commit changes to the branch
+    const commit = await commitFile({
+      octokit: github.getOctokit(repoToken),
+      repo: repoOwnerAndName,
+      branch: repoBranch,
+      path: readingsPath,
+      content: readingsString,
+      message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
+    });
+
+    if (commit.ok) {
       core.info(
-        `Committed reading changes to "${readingsPath}" via ${ref.sha}`
+        `Committed reading changes to "${readingsPath}" via ${commit.sha}`
       );
+    } else if (commit.reason === "same_content") {
+      core.info("No change in readings, skipping commit");
     }
 
     core.setOutput("readings", readings);
@@ -5331,80 +5331,43 @@ module.exports = __webpack_require__(141);
 /***/ 426:
 /***/ (function(module) {
 
-module.exports = async ({ git, repo, ref, path, content, message }) => {
-  const lastCommit = await getLastCommitInRef(git, repo, ref);
-  const baseTree = await getBaseTree(git, repo, lastCommit);
+module.exports = async ({ octokit, repo, branch, path, content, message }) => {
+  const current = await getCurrentContent({ octokit, repo, branch, path });
+  if (!current.ok && current.reason === "error") return current;
 
-  const contentBlob = await createContentBlob(git, repo, content);
-  const newTree = await createSubTree(git, repo, baseTree, path, contentBlob);
-  const newCommit = await createCommit(git, repo, lastCommit, newTree, message);
+  if (current.ok && current.content.trim() === content.trim()) {
+    return { ok: false, reason: "same_content" };
+  }
 
-  const updatedRef = await pointRefToCommit(git, repo, ref, newCommit);
+  try {
+    const { data } = await octokit.repos.createOrUpdateFileContents({
+      ...repo,
+      branch,
+      sha: current.sha,
+      path,
+      message,
+      content: Buffer.from(content).toString("base64"),
+    });
 
-  return updatedRef;
+    return { ok: true, ...data.commit };
+  } catch (error) {
+    return { ok: false, reason: "error", error };
+  }
 };
 
-async function getLastCommitInRef(git, repo, ref) {
-  const {
-    data: { object },
-  } = await git.getRef({ ...repo, ref });
-
-  return object;
-}
-
-async function getBaseTree(git, repo, lastCommit) {
-  const {
-    data: { tree },
-  } = await git.getCommit({ ...repo, commit_sha: lastCommit.sha });
-
-  return tree;
-}
-
-async function createContentBlob(git, repo, content) {
-  const { data: blob } = await git.createBlob({
-    ...repo,
-    content,
-    encoding: "utf-8",
-  });
-
-  return blob;
-}
-
-async function createSubTree(git, repo, baseTree, path, contentBlob) {
-  const { data: subTree } = await git.createTree({
-    ...repo,
-    base_tree: baseTree.sha,
-    tree: [
-      {
-        path,
-        mode: "100644",
-        type: "blob",
-        sha: contentBlob.sha,
-      },
-    ],
-  });
-
-  return subTree;
-}
-
-async function createCommit(git, repo, parent, tree, message) {
-  const { data: commit } = await git.createCommit({
-    ...repo,
-    message,
-    tree: tree.sha,
-    parents: [parent.sha],
-  });
-
-  return commit;
-}
-
-async function pointRefToCommit(git, repo, ref, commit) {
-  const {
-    data: { object: updatedRef },
-  } = await git.updateRef({ ...repo, ref, sha: commit.sha });
-
-  return updatedRef;
-}
+const getCurrentContent = async ({ octokit, repo, branch, path }) => {
+  try {
+    const ref = branch;
+    const { data } = await octokit.repos.getContent({ ...repo, ref, path });
+    content = Buffer.from(data.content, "base64").toString("ascii");
+    return { ok: true, ...data, content };
+  } catch (error) {
+    if (error.name === "HttpError" && error.status === 404) {
+      return { ok: false, reason: "not_found" };
+    }
+    return { ok: false, reason: "error", error };
+  }
+};
 
 
 /***/ }),
@@ -8671,23 +8634,6 @@ class HttpClient {
     }
 }
 exports.HttpClient = HttpClient;
-
-
-/***/ }),
-
-/***/ 561:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-const fs = __webpack_require__(747);
-
-module.exports = (filePath, expectedContent) => {
-  try {
-    const actualFileContent = fs.readFileSync(filePath).toString();
-    return actualFileContent.trim() === expectedContent.trim();
-  } catch (error) {
-    return false;
-  }
-};
 
 
 /***/ }),
