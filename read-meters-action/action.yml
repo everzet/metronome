@@ -11,16 +11,21 @@ runs:
   main: 'dist/index.js'
 
 inputs:
-  repo-token:
+  commit-token:
     description: 'A GitHub token, which would be used to commit readings file'
     required: true
-  readings-branch:
+  commit-branch:
     description: 'A branch to commit readings to'
     required: true
+    default: 'master'
+  readings-env:
+    description: 'Environment name that meters are tracking'
+    required: true
+    default: 'prod'
   readings-path:
     description: 'File to commit meter readings into'
     required: true
-    default: 'kpis/latest.${readings-branch}.json'
+    default: 'kpis/latest.${readings-env}.json'
   meters-script:
     description: 'A script exporting all repository meters'
     required: true

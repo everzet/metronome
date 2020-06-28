@@ -1,9 +1,9 @@
-module.exports = async (meters) => {
+module.exports = async (meters, environment) => {
   const promises = [];
   const readings = {};
 
   for (const [name, meter] of Object.entries(meters)) {
-    const meterPromise = meter();
+    const meterPromise = meter(environment);
 
     if (typeof meterPromise.then !== "function") {
       throw `Meters must be async functions, but "${name}" is not`;

@@ -8,23 +8,28 @@ real product KPIs with the evolution of its code.
 
 ## Inputs
 
-### `repo-token`
+### `commit-token`
 
 **Required, no default value** The token that would allow the action to make a commit into the
 repository. No default value, but you would usually use `${{ secrets.GITHUB_TOKEN }}` (always
 available).
 
-### `readings-branch`
+### `commit-branch`
 
-**Required, no default value** The name of the branch where readings should be committed to.
-`main`, `develop`, `master`, etc.
+**Required, but has default value** The name of the branch where readings should be committed to.
+`main`, `develop`, `master`, etc. Default is `master`.
+
+### `readings-env`
+
+**Required, but has default value** The name of the environment that meters are tracking. `prod`,
+`staging`, `uat`, etc. Default is `prod`.
 
 ### `readings-path`
 
 **Required, but has default value** The relative (to repository root) path to the readings file.
-Can use `${readings-branch}` interpolation to specify branch name. To avoid merge conflicts, it is
+Can use `${readings-env}` interpolation to specify environment. To avoid merge conflicts, it is
 recommended for each environment/branch to have its own readings file. Default is
-`kpis/latest.${readings-branch}.json`.
+`kpis/latest.${readings-env}.json`.
 
 ### `meters-script`
 
@@ -44,7 +49,7 @@ All the current readings from all the meters, serialised as a JSON string.
 
 Below is an example of a project with two meters (`revenue` and `pronicNumber`), read every 12
 hours. Meters code is read from the `master` branch. Meter readings are then committed into the
-`kpis/latest.prod.json` file under the `prod` branch.
+`kpis/latest.prod.json` file under the `master` branch.
 
 ### `.github/workflows/read-meters-prod.yml`
 
@@ -86,10 +91,15 @@ jobs:
           # ${{ secrets.GITHUB_TOKEN }} is always available within
           # GitHub workflows for the given repository. Unless you want to
           # separate your meters from the readings, below should just work.
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
 
-          # The name of the branch that we should commit meter readings to.
-          readings-branch: prod
+          # The name of the branch that we should commit result readings to.
+          commit-branch: master
+
+          # The name of the tracked environment. Used in the commit subject and
+          # default `readings-path`. Allows tracking meters from different
+          # environments (staging, prod, etc.).
+          readings-env: prod
 
         env:
           # most of your meters would fetch data from third party APIs
@@ -104,7 +114,7 @@ jobs:
 ```js
 const axios = require("axios");
 
-module.exports.revenue = async () => {
+module.exports.revenue = async (env) => {
   const API_KEY = process.env.BUSINESS_DASHBOARD_API_KEY;
   const { data } = await axios.get(
     `https://dashboard.our-company.com?apiKey=${API_KEY}`
@@ -112,8 +122,12 @@ module.exports.revenue = async () => {
   return data.revenue;
 };
 
-module.exports.pronicNumber = async () => {
-  return 42;
+module.exports.pronicNumber = async (env) => {
+  if (env === "prod") {
+    return 42;
+  } else {
+    return 10;
+  }
 };
 ```
 
