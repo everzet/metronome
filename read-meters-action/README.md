@@ -22,7 +22,10 @@ available).
 ### `readings-env`
 
 **Required, but has default value** The name of the environment that meters are tracking. `prod`,
-`staging`, `uat`, etc. Default is `prod`.
+`staging`, `uat`, etc. The value is used to generate commit subject line and a commit mark
+(`[meter-readings:${readings-env}]`) in the commit body. The mark is used later for
+environment-based filtering of readings. In a nutshell, this input is here to allow yourself
+having different meter stacks for different environments. Default is `prod`.
 
 ### `readings-path`
 
