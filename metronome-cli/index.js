@@ -7,6 +7,7 @@ const scanGitHistory = require("./scanGitHistory");
 const parseReadings = require("./parseReadings");
 const parseExpectation = require("./parseExpectation");
 const createTracker = require("./createTracker");
+const spreadDatedValues = require("./spreadDatedValues");
 
 yargs
   .command(
@@ -110,40 +111,22 @@ async function check(argv) {
 
   if (argv.format === "pretty") {
     successes.forEach((tracker) => {
-      const padding = "            ";
+      const padding = "           ";
       const expectation = tracker.expectation;
       const shortSha = expectation.sha.slice(0, 7);
       print(
         chalk`{green.bold [✓]} {bold ${shortSha}} {underline ${expectation.subject}}`
       );
-      print(chalk`${padding}${expectation.string}`);
+      print(chalk`${padding} ${expectation.string}`);
       print(
-        chalk`${padding}@${
+        chalk`${padding} @${
           expectation.author
         } on ${expectation.fromDate.toDateString()}`
       );
       print("");
 
-      // TODO: extract
       const readings = tracker.trackedReadings();
-      const width = 50;
-
-      const min = readings[0].date.getTime();
-      const max = readings[readings.length - 1].date.getTime();
-      const inc = parseInt((max - min) / width);
-      const dateRange = [...Array(width + 1)].map(
-        (v, idx) => new Date(min + inc * idx)
-      );
-      const readingsSeries = dateRange.map(
-        (date) =>
-          readings.filter(
-            (reading, idx) =>
-              reading.date <= date &&
-              (!readings[idx + 1] || readings[idx + 1].date > date)
-          )[0]
-      );
-      const series = readingsSeries.map(({ value }) => value);
-
+      const series = spreadDatedValues(readings, 50).map(({ value }) => value);
       print(chart.plot(series, { height: 4, offset: 3, padding }));
     });
   }
