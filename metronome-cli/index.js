@@ -9,41 +9,70 @@ const createTracker = require("./createTracker");
 
 yargs
   .command(
-    "check",
-    "check set expectations against meter readings",
-    (yargs) => yargs,
+    "check [path]",
+    "Check set expectations against meter readings",
+    (yargs) =>
+      yargs.positional("path", {
+        describe: "Path to the repository to be analysed",
+        type: "string",
+        default: process.cwd(),
+      }),
     check
   )
   .command(
-    "readings",
-    "show all current meter readings",
-    (yargs) => yargs,
+    "readings [path]",
+    "Show all current meter readings",
+    (yargs) =>
+      yargs.positional("path", {
+        describe: "Path to the repository to be analysed",
+        type: "string",
+        default: process.cwd(),
+      }),
     async (argv) => argv
   )
   .command(
-    "validate-commit",
-    "validate commit body",
-    (yargs) => yargs,
+    "validate-commit [message]",
+    "Validate commit message",
+    (yargs) =>
+      yargs
+        .positional("message", {
+          describe: "Full commit message or part of it",
+          type: "string",
+        })
+        .require("message"),
     async (argv) => argv
-  ).argv;
+  )
+  .alias("help", "h")
+  .options({
+    env: {
+      describe: "Specify readings environment to use",
+      type: "string",
+      default: "prod",
+    },
+    from: {
+      describe: "Specify revision to start analysis from",
+      type: "string",
+      default: "",
+    },
+    to: {
+      describe: "Specify revision to finish analysis at",
+      type: "string",
+      default: "HEAD",
+    },
+  }).argv;
 
 async function check(argv) {
-  const workingPath = process.cwd();
-  const readingsEnv = "prod";
-  const scanFrom = "";
-  const scanTo = "HEAD";
-
   let readings = [];
   let trackers = [];
 
   await scanGitHistory(
-    workingPath,
-    { from: scanFrom, to: scanTo },
+    argv.path,
+    { from: argv.from, to: argv.to },
     async (commit) => {
       if (commit.type === "readings") {
         [parseReadings(commit)]
           .filter(({ ok }) => ok)
-          .filter(({ env }) => env === readingsEnv)
+          .filter(({ env }) => env === argv.env)
           .forEach(({ readings: newReadings }) => {
             readings = newReadings;
             trackers.forEach((tracker) => tracker.track(readings));

@@ -64,8 +64,7 @@ test("repository analysis", () => {
 
   // run analysis
   const output = childProcess
-    .execSync(`node ${__dirname}/index.js check`, {
-      cwd: repo.path,
+    .execSync(`node ${__dirname}/index.js check ${repo.path}`, {
       env: { ...process.env, FORCE_COLOR: 0 },
     })
     .toString()
