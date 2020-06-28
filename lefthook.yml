@@ -9,6 +9,6 @@ pre-commit:
       root: 'read-meters-action/'
       run: 'npm run build && git add dist'
 
-    test-cli-tool:
-      root: 'cli-tool/'
+    test-metronome-cli:
+      root: 'metronome-cli/'
       run: 'npm test'

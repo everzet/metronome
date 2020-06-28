@@ -1,17 +1,17 @@
-name: Test CLI Tool
+name: Test Metronome CLI
 
 on:
   push:
     branches: [ master ]
     paths:
-    - '.github/workflows/test-cli-tool.yml'
-    - 'cli-tool/**'
+    - '.github/workflows/test-metronome-cli.yml'
+    - 'metronome-cli/**'
 
   pull_request:
     branches: [ master ]
     paths:
-    - '.github/workflows/test-cli-tool.yml'
-    - 'cli-tool/**'
+    - '.github/workflows/test-metronome-cli.yml'
+    - 'metronome-cli/**'
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: 'cli-tool'
+        working-directory: 'metronome-cli'
 
     steps:
     - name: Checkout code
