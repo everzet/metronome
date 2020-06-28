@@ -34,6 +34,7 @@ const parseCommit = async (cwd, string) => {
       type: "expectations",
       sha,
       author,
+      subject: rest[0],
       date: new Date(date),
       expectations,
     };

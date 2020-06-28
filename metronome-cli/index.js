@@ -1,5 +1,6 @@
 const yargs = require("yargs");
 const chalk = require("chalk");
+const chart = require("asciichart");
 const print = console.log;
 
 const scanGitHistory = require("./scanGitHistory");
@@ -12,11 +13,17 @@ yargs
     "check [path]",
     "Check set expectations against meter readings",
     (yargs) =>
-      yargs.positional("path", {
-        describe: "Path to the repository to be analysed",
-        type: "string",
-        default: process.cwd(),
-      }),
+      yargs
+        .positional("path", {
+          describe: "Path to the repository to be analysed",
+          type: "string",
+          default: process.cwd(),
+        })
+        .option("format", {
+          describe: "Specify output format to use",
+          choices: ["pretty", "basic"],
+          default: "pretty",
+        }),
     check
   )
   .command(
@@ -85,6 +92,7 @@ async function check(argv) {
             ...expectation,
             sha: commit.sha,
             author: commit.author,
+            subject: commit.subject,
           }))
           .map(createTracker)
           .forEach((tracker) => {
@@ -95,19 +103,60 @@ async function check(argv) {
     }
   );
 
-  const inProgress = trackers.filter((tracker) => !tracker.reachedDeadline());
   const complete = trackers.filter((tracker) => tracker.reachedDeadline());
-  const success = complete.filter((tracker) => tracker.hasMetExpectation());
-  const failure = complete.filter((tracker) => !tracker.hasMetExpectation());
+  const successes = complete.filter((tracker) => tracker.hasMetExpectation());
+  const failures = complete.filter((tracker) => !tracker.hasMetExpectation());
+  const pending = trackers.filter((tracker) => !tracker.reachedDeadline());
 
-  print(chalk`
-{green Successful:}
-${success.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
+  if (argv.format === "pretty") {
+    successes.forEach((tracker) => {
+      const padding = "            ";
+      const expectation = tracker.expectation;
+      const shortSha = expectation.sha.slice(0, 7);
+      print(
+        chalk`{green.bold [✓]} {bold ${shortSha}} {underline ${expectation.subject}}`
+      );
+      print(chalk`${padding}${expectation.string}`);
+      print(
+        chalk`${padding}@${
+          expectation.author
+        } on ${expectation.fromDate.toDateString()}`
+      );
+      print("");
 
-{red Failed:}
-${failure.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
+      // TODO: extract
+      const readings = tracker.trackedReadings();
+      const width = 50;
 
-{yellow In progress:}
-${inProgress.map(({ expectation }) => `  - ${expectation.string}`).join("\n")}
-    `);
+      const min = readings[0].date.getTime();
+      const max = readings[readings.length - 1].date.getTime();
+      const inc = parseInt((max - min) / width);
+      const dateRange = [...Array(width + 1)].map(
+        (v, idx) => new Date(min + inc * idx)
+      );
+      const readingsSeries = dateRange.map(
+        (date) =>
+          readings.filter(
+            (reading, idx) =>
+              reading.date <= date &&
+              (!readings[idx + 1] || readings[idx + 1].date > date)
+          )[0]
+      );
+      const series = readingsSeries.map(({ value }) => value);
+
+      print(chart.plot(series, { height: 4, offset: 3, padding }));
+    });
+  }
+
+  if (argv.format === "basic") {
+    successes.forEach(({ expectation }) =>
+      print(chalk`{green ✓ ${expectation.string}}`)
+    );
+    failures.forEach(({ expectation }) =>
+      print(chalk`{red ✕ ${expectation.string}}`)
+    );
+    pending.forEach(({ expectation }) =>
+      print(chalk`{yellow ? ${expectation.string}}`)
+    );
+  }
 }
