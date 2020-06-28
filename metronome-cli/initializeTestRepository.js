@@ -2,7 +2,7 @@ const fs = require("fs");
 const childProcess = require("child_process");
 
 module.exports = (params) => {
-  const path = fs.mkdtempSync("scanGitHistoryTest");
+  const path = fs.mkdtempSync("/tmp/metronomeTestRepo");
   init(path, params);
 
   return {
