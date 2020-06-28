@@ -14,7 +14,7 @@ afterEach(() => {
 
 test("repository analysis", () => {
   // create metrics file
-  repo.commit("[meter-readings:master]", {
+  repo.commit("[meter-readings:prod]", {
     contents: `
 {
   "net_promoter_score": 3,
@@ -40,7 +40,7 @@ test("repository analysis", () => {
     { date: "2018-06-29 00:00" }
   );
   // update metrics file
-  repo.commit("[meter-readings:master]", {
+  repo.commit("[meter-readings:prod]", {
     contents: `
 {
   "net_promoter_score": 4,
@@ -51,7 +51,7 @@ test("repository analysis", () => {
     date: "2018-07-05 00:00",
   });
   // update metrics file
-  repo.commit("[meter-readings:master]", {
+  repo.commit("[meter-readings:prod]", {
     contents: `
 {
   "net_promoter_score": 6,

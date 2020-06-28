@@ -29,7 +29,7 @@ yargs
 
 async function check(argv) {
   const workingPath = process.cwd();
-  const workingBranch = "master";
+  const readingsEnv = "prod";
   const scanFrom = "";
   const scanTo = "HEAD";
 
@@ -43,7 +43,7 @@ async function check(argv) {
       if (commit.type === "readings") {
         [parseReadings(commit)]
           .filter(({ ok }) => ok)
-          .filter(({ branch }) => branch === workingBranch)
+          .filter(({ env }) => env === readingsEnv)
           .forEach(({ readings: newReadings }) => {
             readings = newReadings;
             trackers.forEach((tracker) => tracker.track(readings));

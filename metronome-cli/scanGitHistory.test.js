@@ -28,7 +28,7 @@ test("triggers callback for commits with [meter-readings:...] in their subject",
   const parsedCommit = onCommit.mock.calls[0][0];
 
   expect(parsedCommit.type).toEqual("readings");
-  expect(parsedCommit.branch).toEqual("prod");
+  expect(parsedCommit.env).toEqual("prod");
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.date).toBeTruthy();
 });
@@ -43,7 +43,7 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   const parsedCommit = onCommit.mock.calls[0][0];
 
   expect(parsedCommit.type).toEqual("readings");
-  expect(parsedCommit.branch).toEqual("test");
+  expect(parsedCommit.env).toEqual("test");
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.date).toBeTruthy();
 });
@@ -102,7 +102,7 @@ test("commits are processed in chronological (reverse for git log) order", async
   expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
 });
 
-test("whitespace is removed from branch and expectations", async () => {
+test("whitespace is removed from env and expectations", async () => {
   repo.commit("commit [meter-expect:  one ]");
   repo.commit("commit [meter-readings: prod  ]");
 
@@ -110,5 +110,5 @@ test("whitespace is removed from branch and expectations", async () => {
   await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
-  expect(onCommit.mock.calls[1][0].branch).toEqual("prod");
+  expect(onCommit.mock.calls[1][0].env).toEqual("prod");
 });
