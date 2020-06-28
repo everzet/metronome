@@ -11,9 +11,9 @@ const GIT_LOG_OPTIONS = {
 const METER_READINGS_REGEX = /\[meter-readings\:(?<branch>[^\]]+)\]/i;
 const METER_EXPECTATION_REGEX = /\[meter-expect\:(?<expectation>[^\]]+)\]/gi;
 
-module.exports = async (cwd, onCommit) => {
+module.exports = async (cwd, opts, onCommit) => {
   return new Promise((done) => {
-    gitRawCommits(GIT_LOG_OPTIONS, { cwd })
+    gitRawCommits({ ...GIT_LOG_OPTIONS, ...opts }, { cwd })
       .pipe(
         through((message, encoding, callback) => {
           parseCommit(cwd, message.toString()).then(onCommit).then(callback);

@@ -15,30 +15,39 @@ yargs.command(
 ).argv;
 
 async function analyse(argv) {
-  const path = process.cwd();
+  const workingPath = process.cwd();
+  const workingBranch = "master";
+  const scanFrom = "";
+  const scanTo = "HEAD";
+
   let readings = [];
   let trackers = [];
 
-  await scanGitHistory(path, async (commit) => {
-    if (commit.type === "readings") {
-      [parseReadings(commit)]
-        .filter(({ ok }) => ok)
-        .forEach(({ readings: newReadings }) => {
-          readings = newReadings;
-          trackers.forEach((tracker) => tracker.track(readings));
-        });
-    } else if (commit.type === "expectations") {
-      commit.expectations
-        .map((expectation) => parseExpectation(expectation, commit.date))
-        .filter(({ ok }) => ok)
-        .map(({ expectation }) => expectation)
-        .map(createTracker)
-        .forEach((tracker) => {
-          tracker.track(readings);
-          trackers.push(tracker);
-        });
+  await scanGitHistory(
+    workingPath,
+    { from: scanFrom, to: scanTo },
+    async (commit) => {
+      if (commit.type === "readings") {
+        [parseReadings(commit)]
+          .filter(({ ok }) => ok)
+          .filter(({ branch }) => branch === workingBranch)
+          .forEach(({ readings: newReadings }) => {
+            readings = newReadings;
+            trackers.forEach((tracker) => tracker.track(readings));
+          });
+      } else if (commit.type === "expectations") {
+        commit.expectations
+          .map((expectation) => parseExpectation(expectation, commit.date))
+          .filter(({ ok }) => ok)
+          .map(({ expectation }) => expectation)
+          .map(createTracker)
+          .forEach((tracker) => {
+            tracker.track(readings);
+            trackers.push(tracker);
+          });
+      }
     }
-  });
+  );
 
   const inProgress = trackers.filter((tracker) => !tracker.reachedDeadline());
   const complete = trackers.filter((tracker) => tracker.reachedDeadline());

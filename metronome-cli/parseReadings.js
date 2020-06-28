@@ -11,8 +11,8 @@ module.exports = (commit) => {
       })
     );
 
-    return { ok: true, readings };
+    return { ok: true, ...commit, readings };
   } catch (error) {
-    return { ok: false, error };
+    return { ok: false, ...commit, error };
   }
 };

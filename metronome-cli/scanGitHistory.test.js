@@ -14,7 +14,7 @@ test("does nothing for repository without matching commits", async () => {
   repo.commit("first commit");
   repo.commit("second commit");
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
   expect(onCommit.mock.calls.length).toBe(0);
 });
 
@@ -22,7 +22,7 @@ test("triggers callback for commits with [meter-readings:...] in their subject",
   repo.commit("metered commit [meter-readings:prod]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
@@ -37,7 +37,7 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   repo.commit("metered commit\n\n[meter-readings:test]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
@@ -52,7 +52,7 @@ test("fetches file path and content for [meter-readings] commits", async () => {
   repo.commit("[meter-readings:prod]", { contents: "file content" });
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
@@ -66,7 +66,7 @@ test("triggers callback for commits with [meter-expect: ...] in their body", asy
   repo.commit("commit [meter-expect: some assumption text]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
@@ -82,7 +82,7 @@ test("handles commits with multiple expectations", async () => {
   repo.commit("commit\n\n[meter-expect:one]\n[meter-expect:two]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
@@ -95,7 +95,7 @@ test("commits are processed in chronological (reverse for git log) order", async
   repo.commit("commit [meter-expect:two]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(2);
   expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
@@ -107,7 +107,7 @@ test("whitespace is removed from branch and expectations", async () => {
   repo.commit("commit [meter-readings: prod  ]");
 
   const onCommit = jest.fn(async () => null);
-  await scanGitHistory(repo.path, onCommit);
+  await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
   expect(onCommit.mock.calls[1][0].branch).toEqual("prod");
