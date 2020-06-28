@@ -16,9 +16,11 @@ test("repository analysis", () => {
   // create metrics file
   repo.commit("[meter-readings:master]", {
     contents: `
-net_promoter_score = 3
-desktop_conversion_rate = 1.2
-employee_feeling = "unhappy"
+{
+  "net_promoter_score": 3,
+  "desktop_conversion_rate": 1.2,
+  "employee_feeling": "unhappy"
+}
   `,
     date: "2018-06-26 00:00",
   });
@@ -40,18 +42,22 @@ employee_feeling = "unhappy"
   // update metrics file
   repo.commit("[meter-readings:master]", {
     contents: `
-net_promoter_score = 4
-desktop_conversion_rate = 1.6
-employee_feeling = "concerned"
+{
+  "net_promoter_score": 4,
+  "desktop_conversion_rate": 1.6,
+  "employee_feeling": "concerned"
+}
   `,
     date: "2018-07-05 00:00",
   });
   // update metrics file
   repo.commit("[meter-readings:master]", {
     contents: `
-net_promoter_score = 6
-desktop_conversion_rate = 1.65
-employee_feeling = "concerned"
+{
+  "net_promoter_score": 6,
+  "desktop_conversion_rate": 1.65,
+  "employee_feeling": "concerned"
+}
   `,
     date: "2018-07-14 00:00",
   });

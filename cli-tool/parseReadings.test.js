@@ -6,8 +6,10 @@ test("successfully parses readings from an enchanced commit", () => {
     date: new Date(),
     path: "/some/path",
     content: `
-meter1 = "value"
-meter2 = 25.3
+{
+  "meter1": "value",
+  "meter2": 25.3
+}
     `,
   };
 
@@ -39,7 +41,7 @@ test("handles parsing errors", () => {
     sha: "hash",
     date: new Date(),
     path: "/some/path",
-    content: `~NOT_A_TOML~`,
+    content: `~NOT_A_JSON~`,
   };
 
   expect(parseReadings(commit).ok).toEqual(false);
