@@ -428,7 +428,6 @@ const readMeters = __webpack_require__(594);
 const stringifyReadings = __webpack_require__(15);
 const commitFile = __webpack_require__(426);
 
-const COMMIT_MESSAGE = ":thermometer: Provide updated meter readings";
 const READINGS_MARK = (branch) => `[meter-readings:${branch}]`;
 
 async function main() {
@@ -451,7 +450,8 @@ async function main() {
 
     // Commit changes to the branch
     const octokit = github.getOctokit(repoToken);
-    const message = `${COMMIT_MESSAGE}\n\n${READINGS_MARK(readingsBranch)}`;
+    const subject = `:chart_with_upwards_trend: Refresh \`${readingsBranch}\` KPIs`;
+    const message = `${subject}\n\n${READINGS_MARK(readingsBranch)}`;
     const result = await commitFile({
       octokit,
       message,
