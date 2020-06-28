@@ -52,7 +52,11 @@ async function check(argv) {
         commit.expectations
           .map((expectation) => parseExpectation(expectation, commit.date))
           .filter(({ ok }) => ok)
-          .map(({ expectation }) => expectation)
+          .map(({ expectation }) => ({
+            ...expectation,
+            sha: commit.sha,
+            author: commit.author,
+          }))
           .map(createTracker)
           .forEach((tracker) => {
             tracker.track(readings);
