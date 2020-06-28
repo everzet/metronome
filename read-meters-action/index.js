@@ -47,7 +47,7 @@ async function main() {
       core.setFailed(result.error);
     }
 
-    core.setOutput("readings", readings);
+    core.setOutput("readings", readingsString);
   } catch (error) {
     core.setFailed(error);
   }

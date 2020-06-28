@@ -24,7 +24,7 @@ available).
 **Required, but has default value** The relative (to repository root) path to the readings file.
 Can use `${readings-branch}` interpolation to specify branch name. To avoid merge conflicts, it is
 recommended for each environment/branch to have its own readings file. Default is
-`kpis/latest.${readings-branch}.toml`.
+`kpis/latest.${readings-branch}.json`.
 
 ### `meters-script`
 
@@ -44,7 +44,7 @@ All the current readings from all the meters, serialised as a JSON string.
 
 Below is an example of a project with two meters (`revenue` and `pronicNumber`), read every 12
 hours. Meters code is read from the `master` branch. Meter readings are then committed into the
-`kpis/latest.prod.toml` file under the `prod` branch.
+`kpis/latest.prod.json` file under the `prod` branch.
 
 ### `.github/workflows/read-meters-prod.yml`
 
