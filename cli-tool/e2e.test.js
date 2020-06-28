@@ -26,17 +26,17 @@ test("repository analysis", () => {
   });
   // set first expectation
   repo.commit(
-    "[meter-expectation: desktop_conversion_rate will increase by 30% in 2 weeks ]",
+    "[meter-expect: desktop_conversion_rate will increase by 30% in 2 weeks ]",
     { date: "2018-06-27 00:00" }
   );
   // set second expectation
   repo.commit(
-    "[meter-expectation: net_promoter_score will increase to 8 in 1 month ]",
+    "[meter-expect: net_promoter_score will increase to 8 in 1 month ]",
     { date: "2018-06-28 00:00" }
   );
   // set third expectation
   repo.commit(
-    `[meter-expectation: employee_feeling will become 'happy' in 2 weeks ]`,
+    `[meter-expect: employee_feeling will become 'happy' in 2 weeks ]`,
     { date: "2018-06-29 00:00" }
   );
   // update metrics file

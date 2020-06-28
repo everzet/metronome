@@ -4,12 +4,12 @@ const catFirstFileAtRevision = require("./catFirstFileAtRevision");
 
 const GIT_LOG_OPTIONS = {
   reverse: true,
-  grep: "\\[meter-readings:\\|\\[meter-expectation:",
+  grep: "\\[meter-readings:\\|\\[meter-expect:",
   format: "%H\n%aI\n%an\n%B",
 };
 
 const METER_READINGS_REGEX = /\[meter-readings\:(?<branch>[^\]]+)\]/i;
-const METER_EXPECTATION_REGEX = /\[meter-expectation\:(?<expectation>[^\]]+)\]/gi;
+const METER_EXPECTATION_REGEX = /\[meter-expect\:(?<expectation>[^\]]+)\]/gi;
 
 module.exports = async (cwd, onCommit) => {
   return new Promise((done) => {
