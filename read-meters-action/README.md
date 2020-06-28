@@ -8,23 +8,23 @@ real product KPIs with the evolution of its code.
 
 ## Inputs
 
-### `repo-branch`
-
-**Required, no default value** The name of the branch where readings should be committed to.
-`main`, `develop`, `master`, etc.
-
 ### `repo-token`
 
 **Required, no default value** The token that would allow the action to make a commit into the
 repository. No default value, but you would usually use `${{ secrets.GITHUB_TOKEN }}` (always
 available).
 
+### `readings-branch`
+
+**Required, no default value** The name of the branch where readings should be committed to.
+`main`, `develop`, `master`, etc.
+
 ### `readings-path`
 
 **Required, but has default value** The relative (to repository root) path to the readings file.
-Can use `${repo-branch}` interpolation to specify branch name. To avoid merge conflicts, it is
+Can use `${readings-branch}` interpolation to specify branch name. To avoid merge conflicts, it is
 recommended for each environment/branch to have its own readings file. Default is
-`kpis/latest.${repo-branch}.toml` (notice lack of leading `./`).
+`kpis/latest.${readings-branch}.toml`.
 
 ### `meters-script`
 
@@ -43,7 +43,7 @@ All the current readings from all the meters, serialised as a JSON string.
 ## Example usage
 
 Below is an example of a project with two meters (`revenue` and `pronicNumber`), read every 12
-hours. Meters code is read from the `prod` branch. Meter readings are then committed into the
+hours. Meters code is read from the `master` branch. Meter readings are then committed into the
 `kpis/latest.prod.toml` file under the `prod` branch.
 
 ### `.github/workflows/read-meters-prod.yml`
@@ -58,12 +58,12 @@ on:
     #
     # use https://crontab.guru to fine-tune this and remember
     # that GitHub's timezone is UTC.
-    - cron: '0 */12 * * *'
+    - cron: "0 */12 * * *"
 
   push:
     # also rerun on changes to this workflow file, in case some
     # parameters changed.
-    paths: [ '.github/workflows/read-meters-prod.yml' ]
+    paths: [".github/workflows/read-meters-prod.yml"]
 
 jobs:
   read-meters:
@@ -73,23 +73,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          # checkout specific branch, otherwise default branch
-          # will be used always, which is a `on.schedule` quirk
-          ref: prod
+          # Checkout the branch we want to run meters from. This can be a
+          # different branch to the one we commit readings to.
+          #
+          # If not explicitly specified, workflow would always use the default
+          # branch when triggered via schedule (cron).
+          ref: master
 
       - name: Read meters
         uses: everzet/metronome/read-meters-action@master
         with:
           # ${{ secrets.GITHUB_TOKEN }} is always available within
-          # a workflow for the given repository. Unless you want to
-          # separate your meters code from readings file, below should
-          # be enough
+          # GitHub workflows for the given repository. Unless you want to
+          # separate your meters from the readings, below should just work.
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-          # the branch name here should match the branch name
-          # above, unless you have a different idea and you know
-          # what you are doing
-          repo-branch: prod
+          # The name of the branch that we should commit meter readings to.
+          readings-branch: prod
 
         env:
           # most of your meters would fetch data from third party APIs
@@ -106,7 +106,9 @@ const axios = require("axios");
 
 module.exports.revenue = async () => {
   const API_KEY = process.env.BUSINESS_DASHBOARD_API_KEY;
-  const { data } = await axios.get(`https://dashboard.our-company.com?apiKey=${API_KEY}`);
+  const { data } = await axios.get(
+    `https://dashboard.our-company.com?apiKey=${API_KEY}`
+  );
   return data.revenue;
 };
 

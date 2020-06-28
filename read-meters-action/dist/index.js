@@ -786,14 +786,14 @@ async function main() {
   try {
     // Repository inputs
     const repoOwnerAndName = github.context.repo;
-    const repoBranch = core.getInput("repo-branch");
+    const readingsBranch = core.getInput("readings-branch");
     const repoToken = core.getInput("repo-token");
 
     // Meters & Readings file inputs
     const metersScript = core.getInput("meters-script");
     const readingsPath = core
       .getInput("readings-path")
-      .replace("${repo-branch}", repoBranch);
+      .replace("${readings-branch}", readingsBranch);
 
     // Produce readings
     const meters = require(path.resolve(metersScript));
@@ -801,21 +801,23 @@ async function main() {
     const readingsString = stringifyReadings(readings);
 
     // Commit changes to the branch
-    const commit = await commitFile({
-      octokit: github.getOctokit(repoToken),
+    const octokit = github.getOctokit(repoToken);
+    const message = `${COMMIT_MESSAGE}\n\n${READINGS_MARK(readingsBranch)}`;
+    const result = await commitFile({
+      octokit,
+      message,
       repo: repoOwnerAndName,
-      branch: repoBranch,
+      branch: readingsBranch,
       path: readingsPath,
       content: readingsString,
-      message: `${COMMIT_MESSAGE}\n\n${READINGS_MARK(repoBranch)}`,
     });
 
-    if (commit.ok) {
-      core.info(
-        `Committed reading changes to "${readingsPath}" via ${commit.sha}`
-      );
-    } else if (commit.reason === "same_content") {
-      core.info("No change in readings, skipping commit");
+    if (result.ok) {
+      core.info(`Readings updated in "${readingsPath}" via ${result.sha}`);
+    } else if (result.reason === "same_content") {
+      core.info("No change in readings, skipped update");
+    } else {
+      core.setFailed(result.error);
     }
 
     core.setOutput("readings", readings);

@@ -11,16 +11,16 @@ runs:
   main: 'dist/index.js'
 
 inputs:
-  repo-branch:
-    description: 'A branch to commit readings to'
-    required: true
   repo-token:
     description: 'A GitHub token, which would be used to commit readings file'
+    required: true
+  readings-branch:
+    description: 'A branch to commit readings to'
     required: true
   readings-path:
     description: 'File to commit meter readings into'
     required: true
-    default: 'kpis/latest.${repo-branch}.toml'
+    default: 'kpis/latest.${readings-branch}.toml'
   meters-script:
     description: 'A script exporting all repository meters'
     required: true
