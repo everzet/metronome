@@ -140,12 +140,9 @@ afterAll(() => {
 describe("test", () => {
   test("default", () => {
     const output = childProcess
-      .execSync(
-        `node ${__dirname}/index.js test ${repo.path} --format basic`,
-        {
-          env: { ...process.env, FORCE_COLOR: 0 },
-        }
-      )
+      .execSync(`node ${__dirname}/index.js test ${repo.path} --format basic`, {
+        env: { ...process.env, FORCE_COLOR: 0 },
+      })
       .toString();
 
     expect(output.trim()).toEqual(
@@ -293,21 +290,21 @@ test("meters", () => {
     `
     001. frontend_error_rate = 4.6
 
-   10.30 ┼────────────────╮                                ${' '}
-    8.80 ┤                │                                ${' '}
-    7.30 ┤                ╰────╮                           ${' '}
-    5.80 ┤                     ╰─────╮                     ${' '}
-    4.30 ┤                           ╰─────────────────────${' '}
-         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${' '}
+   10.30 ┼────────────────╮                                ${" "}
+    8.80 ┤                │                                ${" "}
+    7.30 ┤                ╰────╮                           ${" "}
+    5.80 ┤                     ╰─────╮                     ${" "}
+    4.30 ┤                           ╰─────────────────────${" "}
+         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${" "}
 
     002. desktop_conversion_rate = 1.97
 
-    1.97 ┤                                      ╭──────────${' '}
-    1.78 ┤                           ╭──────────╯          ${' '}
-    1.58 ┤                     ╭─────╯                     ${' '}
-    1.39 ┤          ╭──────────╯                           ${' '}
-    1.20 ┼──────────╯                                      ${' '}
-         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${' '}
+    1.97 ┤                                      ╭──────────${" "}
+    1.78 ┤                           ╭──────────╯          ${" "}
+    1.58 ┤                     ╭─────╯                     ${" "}
+    1.39 ┤          ╭──────────╯                           ${" "}
+    1.20 ┼──────────╯                                      ${" "}
+         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${" "}
 
     003. gdpr_compliant = false
 
@@ -323,4 +320,46 @@ test("meters", () => {
 4 meters
 `.trim()
   );
+});
+
+describe("validate-expect", () => {
+  test("invalid", () => {
+    expect.assertions(1);
+    try {
+      childProcess.execSync(`node ${__dirname}/index.js expect "invalid"`, {
+        env: { ...process.env, FORCE_COLOR: 0 },
+      });
+    } catch (error) {
+      const output = error.output.toString();
+      expect(output.trim()).toContain(
+        `
+[meter-expect: invalid ]
+
+Parse error
+    `.trim()
+      );
+    }
+  });
+
+  test("valid", () => {
+    const output = childProcess
+      .execSync(
+        `node ${__dirname}/index.js expect "conversion_rate will increase by 20 in one week"`,
+        {
+          env: { ...process.env, FORCE_COLOR: 0 },
+        }
+      )
+      .toString();
+    expect(output.trim()).toEqual(
+      `
+[meter-expect: conversion_rate will increase by 20 in one week ]
+
+meter: conversion_rate
+direction: increase_by
+measure: 20 (number)
+example fromDate (commit date): Mon Jun 29 2020
+example deadline (calculated): Mon Jul 06 2020
+    `.trim()
+    );
+  });
 });

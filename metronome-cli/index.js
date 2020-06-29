@@ -41,8 +41,8 @@ yargs
     meters
   )
   .command(
-    "validate-commit [message]",
-    "Validate commit message",
+    "expect [message]",
+    "Validate expectation string",
     (yargs) =>
       yargs
         .positional("message", {
@@ -50,7 +50,7 @@ yargs
           type: "string",
         })
         .require("message"),
-    async (argv) => argv
+    validateExpectation
   )
   .alias("help", "h")
   .options({
@@ -156,6 +156,43 @@ async function meters(argv) {
   });
 
   print(chalk.reset(Object.keys(readings).length, "meters"));
+}
+
+async function validateExpectation(argv) {
+  const message = argv.message;
+  const result = parseExpectation(message, new Date("2020-06-29 10:00"));
+
+  if (!result.ok) {
+    print(chalk.reset("[meter-expect:", chalk.red.bold(message), "]"));
+    print("");
+    print(chalk.red(result.error));
+    print("");
+    process.exit(1);
+  } else {
+    print(chalk.reset("[meter-expect:", chalk.green.bold(message), "]"));
+    print("");
+
+    print(chalk.bold.dim("meter:"), chalk.reset(result.expectation.meter));
+    print(
+      chalk.bold.dim("direction:"),
+      chalk.reset(result.expectation.direction)
+    );
+    print(
+      chalk.bold.dim("measure:"),
+      chalk.reset(result.expectation.measure.value),
+      chalk.reset(`(${result.expectation.measure.unit})`)
+    );
+    print(
+      chalk.bold.dim("example fromDate (commit date):"),
+      chalk.reset(result.expectation.fromDate.toDateString())
+    );
+    print(
+      chalk.bold.dim("example deadline (calculated):"),
+      chalk.reset(result.expectation.deadline.toDateString())
+    );
+  }
+
+  print("");
 }
 
 const printStatistics = (trackers) => {
