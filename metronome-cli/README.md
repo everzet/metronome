@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://user-images.githubusercontent.com/30813/86042360-f33fba00-ba3e-11ea-8d57-6cdc71dd7e46.png" width="600px" />
+<img src="https://user-images.githubusercontent.com/30813/86042360-f33fba00-ba3e-11ea-8d57-6cdc71dd7e46.png" />
 </p>
 
 <h2 align="center">📈 Driving Impactful Changes</h2>
@@ -32,7 +32,8 @@ between code changes and business impacts.
 #### TLDR;
 
 **Put KPIs into a `kpis/latest.prod.json` file under your repository. When updating said file
-regularly, make sure you add `[meter-readings:prod]` into the commit body.**
+regularly, make sure you add `[meter-readings:prod]` into the commit body. Do not mix such commits
+with other code changes.**
 
 **Use [read-meters-action](../read-meters-action/README.md) to simplify regular refresh of
 readings.**
@@ -77,9 +78,11 @@ would help you establish an automated routine to keep your metrics up-to-date.
 
 #### TLDR;
 
-Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text in
-their bodies. Use Metronome CLI's [expectation validation command](#validating-expectations) to
-check that `<your expectation>` is parseable and produces expected result.
+**Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text in
+their bodies.**
+
+**Use Metronome CLI's [expectation validation command](#validating-expectations) to check that
+`<your expectation>` is parseable and produces expected result.**
 
 #### Longer Version
 
@@ -152,7 +155,7 @@ yarn add --dev @everzet/metronome-cli
 Or `npm`:
 
 ```
-npm install --save-dev @everzet/metronome-clie
+npm install --save-dev @everzet/metronome-cli
 ```
 
 You then can check available commands and options with:
