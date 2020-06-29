@@ -13,8 +13,8 @@ const spreadDatedValues = require("./spreadDatedValues");
 
 yargs
   .command(
-    "check [path]",
-    "Check set expectations against meter readings",
+    "test [path]",
+    "Test set expectations against meter readings",
     (yargs) =>
       yargs
         .positional("path", {
@@ -27,18 +27,18 @@ yargs
           choices: ["pretty", "basic"],
           default: "pretty",
         }),
-    check
+    test
   )
   .command(
-    "readings [path]",
-    "Show all current meter readings",
+    "meters [path]",
+    "Show all current meters and their readings",
     (yargs) =>
       yargs.positional("path", {
         describe: "Path to the repository to be analysed",
         type: "string",
         default: process.cwd(),
       }),
-    async (argv) => argv
+    meters
   )
   .command(
     "validate-commit [message]",
@@ -71,7 +71,7 @@ yargs
     },
   }).argv;
 
-async function check(argv) {
+async function test(argv) {
   let readings = [];
   let trackers = [];
 
@@ -115,6 +115,47 @@ async function check(argv) {
   }
 
   printStatistics(trackers);
+}
+
+async function meters(argv) {
+  let readings = {};
+
+  await scanGitHistory(
+    argv.path,
+    { from: argv.from, to: argv.to },
+    async (commit) => {
+      if (commit.type === "readings") {
+        [parseReadings(commit)]
+          .filter(({ ok }) => ok)
+          .filter(({ env }) => env === argv.env)
+          .forEach(({ readings: newReadings }) => {
+            newReadings.forEach((reading) => {
+              readings[reading.meter] = [
+                ...(readings[reading.meter] || []),
+                reading,
+              ];
+            });
+          });
+      }
+    }
+  );
+
+  [...Object.entries(readings)].map(([meter, readings], idx) => {
+    print(
+      chalk(
+        " ".repeat(3),
+        chalk.dim.bold(`${idx + 1}.`.padStart(4, "0")),
+        chalk.bold.underline(meter),
+        chalk.dim("="),
+        chalk.reset(readings[readings.length - 1].value)
+      )
+    );
+    print("");
+    printReadings(readings, null, 8);
+    print("");
+  });
+
+  print(chalk.reset(Object.keys(readings).length, "meters"));
 }
 
 const printStatistics = (trackers) => {
@@ -210,36 +251,28 @@ const prettyPrintTracker = (mark, tracker) => {
 
   // Show readings
   print("");
-  printReadings(tracker, DETAILS_INDENT);
+  printReadings(tracker.trackedReadings(), tracker.target(), DETAILS_INDENT);
 
   print("");
 };
 
-const printReadings = (tracker, indent) => {
-  const CHARTABLE_TYPES = [
-    "increase_by",
-    "decrease_by",
-    "increase_to",
-    "decrease_to",
-  ];
-
-  const type = tracker.type;
-  const target = tracker.target();
-  const readings = tracker.trackedReadings();
-
+const printReadings = (readings, target, indent) => {
   if (readings.length < 2) {
     print(
       chalk.reset(" ".repeat(indent + 3), chalk.dim("Awaiting readings..."))
     );
-  } else if (CHARTABLE_TYPES.includes(type)) {
-    printChart([readings, [{ date: new Date(), value: target }]], {
-      indent,
-      colors: chalk.level !== 0 ? ["white", "green"] : [],
-      width: 50,
-      height: 4,
-      footerLeft: readings[0].date.toDateString(),
-      footerRight: readings[readings.length - 1].date.toDateString(),
-    });
+  } else if (typeof readings[0].value === "number") {
+    printChart(
+      target ? [readings, [{ date: new Date(), value: target }]] : [readings],
+      {
+        indent,
+        colors: chalk.level !== 0 ? ["white", "green"] : [],
+        width: 50,
+        height: 4,
+        footerLeft: readings[0].date.toDateString(),
+        footerRight: readings[readings.length - 1].date.toDateString(),
+      }
+    );
   } else {
     readings
       .reverse()
@@ -253,9 +286,9 @@ const printReadings = (tracker, indent) => {
           chalk.reset(
             " ".repeat(indent - 2),
             chalk.grey("■"),
-            chalk.reset[reading.value === target ? "green" : "red"](
-              reading.value
-            ),
+            chalk.reset[
+              target ? (reading.value === target ? "green" : "red") : "reset"
+            ](reading.value),
             chalk.grey("on"),
             chalk.grey(reading.date.toDateString())
           )

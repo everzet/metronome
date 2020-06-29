@@ -137,11 +137,11 @@ afterAll(() => {
   repo.destroy();
 });
 
-describe("check", () => {
+describe("test", () => {
   test("default", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --format basic`,
+        `node ${__dirname}/index.js test ${repo.path} --format basic`,
         {
           env: { ...process.env, FORCE_COLOR: 0 },
         }
@@ -163,7 +163,7 @@ describe("check", () => {
   test("--from", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --from ${commits[2].sha} --format basic`,
+        `node ${__dirname}/index.js test ${repo.path} --from ${commits[2].sha} --format basic`,
         {
           env: { ...process.env, FORCE_COLOR: 0 },
         }
@@ -184,7 +184,7 @@ describe("check", () => {
   test("--to", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --to ${
+        `node ${__dirname}/index.js test ${repo.path} --to ${
           commits[commits.length - 5].sha
         } --format basic`,
         {
@@ -208,7 +208,7 @@ describe("check", () => {
   test("--env", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --env test --format basic`,
+        `node ${__dirname}/index.js test ${repo.path} --env test --format basic`,
         {
           env: { ...process.env, FORCE_COLOR: 0 },
         }
@@ -230,7 +230,7 @@ describe("check", () => {
   test("--format pretty", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --format pretty`,
+        `node ${__dirname}/index.js test ${repo.path} --format pretty`,
         {
           env: { ...process.env, FORCE_COLOR: 0 },
         }
@@ -243,23 +243,23 @@ describe("check", () => {
            desktop_conversion_rate will increase by 50% in 2 weeks
            -- @everzet on Wed Apr 01 2020
 
-      1.94 ┼─────────────────────────────────────────────────${' '}
-      1.75 ┤                                  ╭──────╯       ${' '}
-      1.57 ┤                    ╭─────────────╯              ${' '}
-      1.39 ┤      ╭─────────────╯                            ${' '}
-      1.20 ┼──────╯                                          ${' '}
-           └ Wed Apr 01 2020                Wed Apr 15 2020 ┘${' '}
+      1.94 ┼─────────────────────────────────────────────────${" "}
+      1.75 ┤                                  ╭──────╯       ${" "}
+      1.57 ┤                    ╭─────────────╯              ${" "}
+      1.39 ┤      ╭─────────────╯                            ${" "}
+      1.20 ┼──────╯                                          ${" "}
+           └ Wed Apr 01 2020                Wed Apr 15 2020 ┘${" "}
 
  ✓ ${commits[5].sha} Expand error handling and logging on frontend
            frontend_error_rate will decrease to 6.0 in 4 days
            -- @everzet on Mon Apr 06 2020
 
-     10.20 ┼────────────────────────╮                        ${' '}
-      9.00 ┤                        │                        ${' '}
-      7.80 ┤                        ╰───────────────────────╮${' '}
-      6.60 ┤                                                │${' '}
-      5.40 ┼─────────────────────────────────────────────────${' '}
-           └ Sun Apr 05 2020                Thu Apr 09 2020 ┘${' '}
+     10.20 ┼────────────────────────╮                        ${" "}
+      9.00 ┤                        │                        ${" "}
+      7.80 ┤                        ╰───────────────────────╮${" "}
+      6.60 ┤                                                │${" "}
+      5.40 ┼─────────────────────────────────────────────────${" "}
+           └ Sun Apr 05 2020                Thu Apr 09 2020 ┘${" "}
 
  ✕ ${commits[5].sha} Expand error handling and logging on frontend
            team_mood will become 'happy' in 1 week
@@ -280,4 +280,47 @@ describe("check", () => {
 `.trim()
     );
   });
+});
+
+test("meters", () => {
+  const output = childProcess
+    .execSync(`node ${__dirname}/index.js meters ${repo.path}`, {
+      env: { ...process.env, FORCE_COLOR: 0 },
+    })
+    .toString();
+
+  expect(output.trim()).toEqual(
+    `
+    001. frontend_error_rate = 4.6
+
+   10.30 ┼────────────────╮                                ${' '}
+    8.80 ┤                │                                ${' '}
+    7.30 ┤                ╰────╮                           ${' '}
+    5.80 ┤                     ╰─────╮                     ${' '}
+    4.30 ┤                           ╰─────────────────────${' '}
+         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${' '}
+
+    002. desktop_conversion_rate = 1.97
+
+    1.97 ┤                                      ╭──────────${' '}
+    1.78 ┤                           ╭──────────╯          ${' '}
+    1.58 ┤                     ╭─────╯                     ${' '}
+    1.39 ┤          ╭──────────╯                           ${' '}
+    1.20 ┼──────────╯                                      ${' '}
+         └ Wed Apr 01 2020                Sun Apr 19 2020 ┘${' '}
+
+    003. gdpr_compliant = false
+
+       ■ false on Sun Apr 19 2020
+
+    004. team_mood = sad
+
+       ■ sad on Sun Apr 19 2020
+       ■ concerned on Mon Apr 13 2020
+       ■ happy on Thu Apr 09 2020
+       ■ sad on Tue Apr 07 2020
+
+4 meters
+`.trim()
+  );
 });
