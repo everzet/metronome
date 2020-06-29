@@ -16,6 +16,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '10', '12', '14 ]
 
     defaults:
       run:
@@ -28,7 +31,7 @@ jobs:
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        node-version: 12.x
+        node-version: ${{ matrix.node }}
 
     - name: Cache NPM modules
       uses: actions/cache@v2
