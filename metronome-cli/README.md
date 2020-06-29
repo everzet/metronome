@@ -98,48 +98,75 @@ Some examples of expectations include:
 - `frontend_error_rate decreases by 20% in 1 month`
 - `team_mood will become 'happy' in 2 weeks`
 
-All expectations have four things in common. The all have:
+All expectations have four things in common. They all have:
 
-1. **meter** - links expectations directly to a particular KPI (e.g. `monthly_revenue`)
-2. **direction** - indicates direction of change (e.g. `increase to`, `decrease by`,
+1. **METER** - links expectations directly to a particular KPI (e.g. `monthly_revenue`)
+2. **DIRECTION** - indicates direction of change (e.g. `increase to`, `decrease by`,
    `become`, etc.)
-3. **measure** - states expected target value or delta (e.g. `10%`, `3.2`, `'happy'`, etc.)
-4. **timeline** - sets the length of the feedback loop (e.g. `in 2 months`, `in 1 week`, etc.)
+3. **MEASURE** - states expected target value or delta (e.g. `10%`, `3.2`, `'happy'`, etc.)
+4. **TIMELINE** - sets the length of the feedback loop (e.g. `in 2 months`, `in 1 week`, etc.)
 
 In order for **Metronome CLI** tool to identify commits linked to expectations, make sure you mark
 commits in question with the `[meter-expect: <your-expectation>]`. For Metronome to understand and
 be able to analyse expectations, they have to be in the following format:
 
 ```
-                                                      measure
                                                    can be one of:
-                                                - number (`25.0`)
-                                                - percent (`5%`, `5 percent`)
-                                                - boolean (`true`, `false`)
-                                                - string (`'str'`)
-                          optional                       |
+                                               - number (`25.0`)
+                                               - percent (`5%`, `5 percent`)
+                                               - boolean (`true`, `false`)
+                                               - string (`'str'`)
+                         completely
+                          optional                    MEASURE
                              |                           |
-                             v                           V
+                             v                           v
                             ----                        ----
       monthly_revenue       will       increase to      25.0      in 1 month
       ---------------                  -----------                ----------
              ^                              ^                         ^
              |                              |                         |
-           meter                        direction                  timeline
-  (as per `latest.prod.json`)         can be one of:            natural sentece
+           METER                        DIRECTION                  TIMELINE
+
+ (as per `latest.prod.json`)          can be one of:            natural sentece
                                       - increase to           in the future tense
-                                      - increase by
-                                      - decrease to
-                                      - decrease by
-                                      - become
+                                      - increase by                examples:
+                                      - decrease to            - `within a week`
+                                      - decrease by            - `in 1 month`
+                                      - become                 - `next week`
 ```
 
 As it is very dangerous and expensive to correct mistakes in commits, **Metronome CLI** comes with
-a [buil-in command](#validating-expectations) to validate expectation strings and see their parsed
-meaning. We strongly suggest checking your expectation strings with that command until you get a
-hang of the language.
+a [built-in command](#validating-expectations) to validate expectation strings and see their
+parsed meaning. It will basically tell you if Metronome would be able to parse and analyse your
+expectation later. We strongly suggest checking your expectation strings with that command until
+you get a hang of the language.
 
 ## Running Metronome CLI
+
+You can install Metronome CLI into your project using `yarn`:
+
+```
+yarn add --dev @everzet/metronome-cli
+```
+
+Or `npm`:
+
+```
+npm install --save-dev @everzet/metronome-clie
+```
+
+You then can check available commands and options with:
+
+```
+metronome-cli --help
+```
+
+If you don't want to add dependencies to your project, you can always run any Metronome CLI with
+`npx`:
+
+```
+npx @everzet/metronome-cli --help
+```
 
 ## Performing Analysis
 
