@@ -1,6 +1,6 @@
 const chrono = require("chrono-node");
 
-const EXPECTATION_REGEX = /^(?<meter>[a-zA-Z_]+(?:[a-zA-Z_0-9])?)\s+(?:will\s+)?(?<direction>(?:\+|\-|\~|increases? by|decreases? by|increases? to|decreases? to|is|to be|becomes?|stays? at|stays? around))?\s*(?<measure>(?:[0-9]+(?:\.[0-9]+)?\s*(?:\%|percent)|[0-9]+(?:\.[0-9]+)?|true|false|\'[^\']+\'|\"[^\"]+\"|\`[^\`]+\`))\s+(?<timeline>.*)$/i;
+const EXPECTATION_REGEX = /^(?<meter>[a-zA-Z_]+(?:[a-zA-Z_0-9])?)\s+(?:will\s+)?(?<direction>(?:\+|\-|\~|increases? by|decreases? by|increases? to|decreases? to|is|to be|becomes?|stays? at|stays? around))?\s*(?<measure>(?:[0-9]+(?:\.[0-9]+)?\s*(?:\%|percent)|[0-9]+(?:\.[0-9]+)?|true|false|\'[^\']+\'|\`[^\`]+\`))\s+(?<timeline>.*)$/i;
 
 module.exports = (string, fromDate) => {
   const match = string.match(EXPECTATION_REGEX);

@@ -88,7 +88,6 @@ test("properly parses different types of measures", () => {
     { text: "2.3", measure: { value: 2.3, unit: "number" } },
     { text: "true", measure: { value: true, unit: "boolean" } },
     { text: "false", measure: { value: false, unit: "boolean" } },
-    { text: '"str"', measure: { value: "str", unit: "string" } },
     { text: "'str'", measure: { value: "str", unit: "string" } },
     { text: "`str`", measure: { value: "str", unit: "string" } },
   ];
@@ -137,7 +136,7 @@ test("validates consistency of resulting expectation", () => {
         "Booleans can only be used with 'maintain' or 'become' modifiers, but 'increase_by' was given",
     },
     {
-      text: 'c increase to "Hello" tomorrow',
+      text: 'c increase to `Hello` tomorrow',
       err:
         "Strings can only be used with 'maintain' or 'become' modifiers, but 'increase_to' was given",
     },
