@@ -8,7 +8,6 @@ module.exports = (params) => {
   return {
     path,
     commit: (message, params) => commit(path, message, params),
-    lastCommitSha: () => lastCommitSha(path),
     destroy: () => fs.rmdirSync(path, { recursive: true }),
   };
 };
@@ -41,9 +40,9 @@ const commit = (cwd, message, params = {}) => {
   }
 
   childProcess.execSync("git add .", { cwd, env });
-  childProcess.execSync(`git commit -m "${message}"`, { cwd, env });
-};
 
-const lastCommitSha = (cwd) => {
-  return childProcess.execSync("git rev-parse HEAD", { cwd }).toString().trim();
+  return childProcess
+    .execSync(`git commit -m "${message}"`, { cwd, env })
+    .toString()
+    .match(/^\[master (?<sha>[^\]]+)\]/).groups.sha;
 };
