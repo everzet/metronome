@@ -37,20 +37,21 @@ regularly, make sure you add `[meter-readings:prod]` into the commit body.**
 **Use [read-meters-action](../read-meters-action/README.md) to simplify regular refresh of
 readings.**
 
-#### Longer version
+#### Longer Version
 
 Business metrics, KPIs (Key Performance Indicators) or OKRs (Objectives and Key Results) are
 tangible ways of measuring product success. Some of them might be familiar to a development team
 in form of "non-functional" requirements. Some are historically isolated within the domain of
 management.
 
-Some examples of business metrics include:
+Some examples of valid business metrics include:
 
-- Revenue
-- Conversion Rate
-- Net Promoter Score
-- Frontend Error Rate
-- Team Mood
+- `monthy_revenue`
+- `conversion_rate`
+- `net_promoter_score`
+- `frontend_error_rate`
+- `number_of_support_requests`
+- `team_moode`
 - etc.
 
 Traditionally, business KPIs (or OKRs) are tracked via some sort of a business dashboard. That
@@ -73,6 +74,70 @@ To simplify maintenance (update) of meter readings, you can use a
 would help you establish an automated routine to keep your metrics up-to-date.
 
 ### Linking Commits to Metrics via Expectations
+
+#### TLDR;
+
+Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text in
+their bodies. Use Metronome CLI's [expectation validation command](#validating-expectations) to
+check that `<your expectation>` is parseable and produces expected result.
+
+#### Longer Version
+
+After you [have put your business KPIs](#tracking-business-metrics) into the repository, it is
+time to start linking your code changes to the changes in these.
+
+As you probably know, there is no direct link between code change and a business impact. Instead,
+these two are linked via hypotheses. Or like we call them - **expectations**. Expectations (or
+hypotheses) are timed, constrained KPI assessments about the future.
+
+Some examples of expectations include:
+
+- `monthly_revenue will increase by 10% in 2 months`
+- `conversion_rate increases to 3.2 in 1 week`
+- `net_promoter_score will increase to 8 in 4 weeks`
+- `frontend_error_rate decreases by 20% in 1 month`
+- `team_mood will become 'happy' in 2 weeks`
+
+All expectations have four things in common. The all have:
+
+1. **meter** - links expectations directly to a particular KPI (e.g. `monthly_revenue`)
+2. **direction** - indicates direction of change (e.g. `increase to`, `decrease by`,
+   `become`, etc.)
+3. **measure** - states expected target value or delta (e.g. `10%`, `3.2`, `'happy'`, etc.)
+4. **timeline** - sets the length of the feedback loop (e.g. `in 2 months`, `in 1 week`, etc.)
+
+In order for **Metronome CLI** tool to identify commits linked to expectations, make sure you mark
+commits in question with the `[meter-expect: <your-expectation>]`. For Metronome to understand and
+be able to analyse expectations, they have to be in the following format:
+
+```
+                                                      measure
+                                                   can be one of:
+                                                - number (`25.0`)
+                                                - percent (`5%`, `5 percent`)
+                                                - boolean (`true`, `false`)
+                                                - string (`'str'`)
+                          optional                       |
+                             |                           |
+                             v                           V
+                            ----                        ----
+      monthly_revenue       will       increase to      25.0      in 1 month
+      ---------------                  -----------                ----------
+             ^                              ^                         ^
+             |                              |                         |
+           meter                        direction                  timeline
+  (as per `latest.prod.json`)         can be one of:            natural sentece
+                                      - increase to           in the future tense
+                                      - increase by
+                                      - decrease to
+                                      - decrease by
+                                      - become
+```
+
+As it is very dangerous and expensive to correct mistakes in commits, **Metronome CLI** comes with
+a [buil-in command](#validating-expectations) to validate expectation strings and see their parsed
+meaning. We strongly suggest checking your expectation strings with that command until you get a
+hang of the language.
 
 ## Running Metronome CLI
 
