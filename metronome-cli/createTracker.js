@@ -5,6 +5,7 @@ module.exports = (expectation) => {
     case "increase_by":
       return {
         ...tracker,
+        type: expectation.direction,
         target: () =>
           increaseByTarget(tracker.trackedReadings(), expectation.measure),
         hasMetExpectation: () =>
@@ -16,6 +17,7 @@ module.exports = (expectation) => {
     case "decrease_by":
       return {
         ...tracker,
+        type: expectation.direction,
         target: () =>
           decreaseByTarget(tracker.trackedReadings(), expectation.measure),
         hasMetExpectation: () =>
@@ -27,6 +29,7 @@ module.exports = (expectation) => {
     case "increase_to":
       return {
         ...tracker,
+        type: expectation.direction,
         target: () => expectation.measure.value,
         hasMetExpectation: () =>
           readingsAbove(tracker.trackedReadings(), expectation.measure.value)
@@ -35,6 +38,7 @@ module.exports = (expectation) => {
     case "decrease_to":
       return {
         ...tracker,
+        type: expectation.direction,
         target: () => expectation.measure.value,
         hasMetExpectation: () =>
           readingsBelow(tracker.trackedReadings(), expectation.measure.value)
@@ -43,6 +47,7 @@ module.exports = (expectation) => {
     case "become":
       return {
         ...tracker,
+        type: expectation.direction,
         target: () => expectation.measure.value,
         hasMetExpectation: () =>
           lastReadingValue(tracker.trackedReadings()) ===
