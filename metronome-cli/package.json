@@ -1,8 +1,11 @@
 {
   "name": "@everzet/metronome-cli",
+  "bin": {
+    "metronome-cli": "./index.js"
+  },
+  "main": "index.js",
   "version": "0.0.1",
   "description": "CLI tool to analyse git history in context of business KPIs",
-  "main": "index.js",
   "author": "Konstantin Kudryashov (everzet)",
   "license": "MIT",
   "homepage": "https://github.com/everzet/metronome#readme",
