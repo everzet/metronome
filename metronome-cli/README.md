@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/30813/86042360-f33fba00-ba3e-11ea-8d57-6cdc71dd7e46.png" />
 </p>
 
-<h2 align="center">📈 Driving **changes** with an **impact**</h2>
+<h2 align="center">📈 Driving Changes with an Impact</h2>
 
 Did you ever wonder what business goals your code changes pursue? Wouldn't it be great if you
 could track their successes and failures? **Metronome CLI** aims to bring business context to
