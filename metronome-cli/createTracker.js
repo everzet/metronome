@@ -5,34 +5,45 @@ module.exports = (expectation) => {
     case "increase_by":
       return {
         ...tracker,
+        target: () =>
+          increaseByTarget(tracker.trackedReadings(), expectation.measure),
         hasMetExpectation: () =>
-          readingsIncreasedBy(tracker.trackedReadings(), expectation.measure)
-            .length > 0,
+          readingsAbove(
+            tracker.trackedReadings(),
+            increaseByTarget(tracker.trackedReadings(), expectation.measure)
+          ).length > 0,
       };
     case "decrease_by":
       return {
         ...tracker,
+        target: () =>
+          decreaseByTarget(tracker.trackedReadings(), expectation.measure),
         hasMetExpectation: () =>
-          readingsDecreasedBy(tracker.trackedReadings(), expectation.measure)
-            .length > 0,
+          readingsBelow(
+            tracker.trackedReadings(),
+            decreaseByTarget(tracker.trackedReadings(), expectation.measure)
+          ).length > 0,
       };
     case "increase_to":
       return {
         ...tracker,
+        target: () => expectation.measure.value,
         hasMetExpectation: () =>
-          readingsAbove(tracker.trackedReadings(), expectation.measure).length >
-          0,
+          readingsAbove(tracker.trackedReadings(), expectation.measure.value)
+            .length > 0,
       };
     case "decrease_to":
       return {
         ...tracker,
+        target: () => expectation.measure.value,
         hasMetExpectation: () =>
-          readingsBelow(tracker.trackedReadings(), expectation.measure).length >
-          0,
+          readingsBelow(tracker.trackedReadings(), expectation.measure.value)
+            .length > 0,
       };
     case "become":
       return {
         ...tracker,
+        target: () => expectation.measure.value,
         hasMetExpectation: () =>
           lastReadingValue(tracker.trackedReadings()) ===
           expectation.measure.value,
@@ -42,28 +53,14 @@ module.exports = (expectation) => {
   }
 };
 
-const readingsIncreasedBy = (readings, measure) => {
-  if (readings.length < 2) return [];
-  const [baseline, ...since] = readings;
-  const expectedValue = baseline.value + expectedDelta(baseline, measure);
-  return since.filter((reading) => reading.value >= expectedValue);
-};
-
-const readingsDecreasedBy = (readings, measure) => {
-  if (readings.length < 2) return [];
-  const [baseline, ...since] = readings;
-  const expectedValue = baseline.value - expectedDelta(baseline, measure);
-  return since.filter((reading) => reading.value <= expectedValue);
-};
-
-const readingsAbove = (readings, measure) => {
+const readingsAbove = (readings, target) => {
   if (readings.length < 1) return [];
-  return readings.filter((reading) => reading.value >= measure.value);
+  return readings.filter((reading) => reading.value >= target);
 };
 
-const readingsBelow = (readings, measure) => {
+const readingsBelow = (readings, target) => {
   if (readings.length < 1) return [];
-  return readings.filter((reading) => reading.value <= measure.value);
+  return readings.filter((reading) => reading.value <= target);
 };
 
 const lastReadingValue = (readings) => {
@@ -71,7 +68,19 @@ const lastReadingValue = (readings) => {
   return readings[readings.length - 1].value;
 };
 
-const expectedDelta = (baseline, measure) => {
+const increaseByTarget = (readings, measure) => {
+  if (readings.length < 1) return;
+  const [baseline] = readings;
+  return baseline.value + targetDelta(baseline, measure);
+};
+
+const decreaseByTarget = (readings, measure) => {
+  if (readings.length < 1) return;
+  const [baseline] = readings;
+  return baseline.value - targetDelta(baseline, measure);
+};
+
+const targetDelta = (baseline, measure) => {
   if (measure.unit !== "percent" && measure.unit !== "number") {
     throw `Wrong measure given. Expected percent or number, but '${measure.unit}' was given`;
   }
