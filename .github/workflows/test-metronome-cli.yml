@@ -16,9 +16,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node: [ '10', '12', '14 ]
+        node: [ '10', '12', '14' ]
 
     defaults:
       run:
