@@ -1,76 +1,136 @@
 const childProcess = require("child_process");
 const initializeTestRepository = require("./initializeTestRepository");
 
-let repo;
-let shas = [];
-let secondExpectationCommitSha;
-let secondToLastReadingsCommitSha;
+let repo, commits;
 beforeAll(() => {
   repo = initializeTestRepository({
-    date: "2018-06-26 00:00",
+    date: "2020-03-26 09:30",
   });
 
-  // create readings
-  repo.commit("[meter-readings:prod]", {
-    contents: `
-{
-  "net_promoter_score": 3,
-  "desktop_conversion_rate": 1.2,
-  "team_mood": "unhappy"
-}
-  `,
-    date: "2018-06-26 00:00",
+  commits = [
+    {
+      date: "2020-04-01 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 10.3,
+        "desktop_conversion_rate": 1.2
+      }`,
+    },
+    {
+      date: "2020-04-01 13:15",
+      message: `Remove extra step in desktop checkout
+      [meter-expect: desktop_conversion_rate will increase by 50% in 2 weeks ]
+      `,
+    },
+    {
+      date: "2020-04-03 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 10.05,
+        "desktop_conversion_rate": 1.21,
+        "gdpr_compliant": false
+      }`,
+    },
+    {
+      date: "2020-04-04 11:20",
+      message: `Implement customer export space
+      [meter-expect: gdpr_compliant will become true in 2 months ]
+      `,
+    },
+    {
+      date: "2020-04-05 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 10.2,
+        "desktop_conversion_rate": 1.3,
+        "gdpr_compliant": false,
+        "team_mood": "sad"
+      }`,
+    },
+    {
+      date: "2020-04-06 09:30",
+      message: `Expand error handling and logging on frontend
+      [meter-expect: frontend_error_rate will decrease to 6.0 in 4 days]
+      [meter-expect: team_mood will become 'happy' in 1 week ]
+      `,
+    },
+    {
+      date: "2020-04-07 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 8.2,
+        "desktop_conversion_rate": 1.43,
+        "gdpr_compliant": false,
+        "team_mood": "sad"
+      }`,
+    },
+    {
+      date: "2020-04-09 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 5.4,
+        "desktop_conversion_rate": 1.51,
+        "gdpr_compliant": false,
+        "team_mood": "happy"
+      }`,
+    },
+    {
+      date: "2020-04-11 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 4.82,
+        "desktop_conversion_rate": 1.65,
+        "gdpr_compliant": false,
+        "team_mood": "concerned"
+      }`,
+    },
+    {
+      date: "2020-04-13 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 4.5,
+        "desktop_conversion_rate": 1.82,
+        "gdpr_compliant": false,
+        "team_mood": "concerned"
+      }`,
+    },
+    {
+      date: "2020-04-15 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 4.9,
+        "desktop_conversion_rate": 1.94,
+        "gdpr_compliant": false,
+        "team_mood": "sad"
+      }`,
+    },
+    {
+      date: "2020-04-17 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 4.3,
+        "desktop_conversion_rate": 1.92,
+        "gdpr_compliant": false,
+        "team_mood": "sad"
+      }`,
+    },
+    {
+      date: "2020-04-19 00:01",
+      message: "[meter-readings:prod]",
+      content: `{
+        "frontend_error_rate": 4.6,
+        "desktop_conversion_rate": 1.97,
+        "gdpr_compliant": false,
+        "team_mood": "sad"
+      }`,
+    },
+  ].map((commit) => {
+    const sha = repo.commit(commit.message, {
+      date: commit.date,
+      contents: commit.content,
+    });
+    return { ...commit, sha };
   });
-  shas.push(repo.lastCommitSha());
-
-  // set first expectation
-  repo.commit(
-    "Remove extra step in the checkout\n\n[meter-expect: desktop_conversion_rate will increase by 30% in 2 weeks ]",
-    { date: "2018-06-27 00:00" }
-  );
-  shas.push(repo.lastCommitSha());
-
-  // set second expectation
-  repo.commit(
-    "Rework refund UI\n\n[meter-expect: net_promoter_score will increase to 8 in 1 month ]",
-    { date: "2018-06-28 00:00" }
-  );
-  secondExpectationCommitSha = repo.lastCommitSha();
-  shas.push(repo.lastCommitSha());
-
-  // set third expectation
-  repo.commit(
-    `Increase test coverage\n\n[meter-expect: team_mood will become 'happy' in 2 weeks ]`,
-    { date: "2018-06-29 00:00" }
-  );
-  shas.push(repo.lastCommitSha());
-
-  // update readings
-  repo.commit("[meter-readings:prod]", {
-    contents: `
-{
-  "net_promoter_score": 4,
-  "desktop_conversion_rate": 1.6,
-  "team_mood": "concerned"
-}
-  `,
-    date: "2018-07-05 00:00",
-  });
-  secondToLastReadingsCommitSha = repo.lastCommitSha();
-  shas.push(repo.lastCommitSha());
-
-  // update readings
-  repo.commit("[meter-readings:prod]", {
-    contents: `
-{
-  "net_promoter_score": 6,
-  "desktop_conversion_rate": 1.65,
-  "team_mood": "concerned"
-}
-  `,
-    date: "2018-07-14 00:00",
-  });
-  shas.push(repo.lastCommitSha());
 });
 
 afterAll(() => {
@@ -90,9 +150,12 @@ describe("check", () => {
 
     expect(output.trim()).toEqual(
       `
-✓ desktop_conversion_rate will increase by 30% in 2 weeks
-✕ team_mood will become 'happy' in 2 weeks
-? net_promoter_score will increase to 8 in 1 month
+✓ ${commits[1].sha} desktop_conversion_rate will increase by 50% in 2 weeks
+✓ ${commits[5].sha} frontend_error_rate will decrease to 6.0 in 4 days
+✕ ${commits[5].sha} team_mood will become 'happy' in 1 week
+? ${commits[3].sha} gdpr_compliant will become true in 2 months
+
+4 expectations (2 succeeded, 1 failed, 1 in progress)
 `.trim()
     );
   });
@@ -100,20 +163,7 @@ describe("check", () => {
   test("--from", () => {
     const output = childProcess
       .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --from ${secondExpectationCommitSha} --format basic`,
-        {
-          env: { ...process.env, FORCE_COLOR: 0 },
-        }
-      )
-      .toString();
-
-    expect(output.trim()).toEqual(`✕ team_mood will become 'happy' in 2 weeks`);
-  });
-
-  test("--to", () => {
-    const output = childProcess
-      .execSync(
-        `node ${__dirname}/index.js check ${repo.path} --to ${secondToLastReadingsCommitSha} --format basic`,
+        `node ${__dirname}/index.js check ${repo.path} --from ${commits[2].sha} --format basic`,
         {
           env: { ...process.env, FORCE_COLOR: 0 },
         }
@@ -122,9 +172,35 @@ describe("check", () => {
 
     expect(output.trim()).toEqual(
       `
-? desktop_conversion_rate will increase by 30% in 2 weeks
-? net_promoter_score will increase to 8 in 1 month
-? team_mood will become 'happy' in 2 weeks
+✓ ${commits[5].sha} frontend_error_rate will decrease to 6.0 in 4 days
+✕ ${commits[5].sha} team_mood will become 'happy' in 1 week
+? ${commits[3].sha} gdpr_compliant will become true in 2 months
+
+3 expectations (1 succeeded, 1 failed, 1 in progress)
+    `.trim()
+    );
+  });
+
+  test("--to", () => {
+    const output = childProcess
+      .execSync(
+        `node ${__dirname}/index.js check ${repo.path} --to ${
+          commits[commits.length - 5].sha
+        } --format basic`,
+        {
+          env: { ...process.env, FORCE_COLOR: 0 },
+        }
+      )
+      .toString();
+
+    expect(output.trim()).toEqual(
+      `
+✓ ${commits[5].sha} frontend_error_rate will decrease to 6.0 in 4 days
+? ${commits[1].sha} desktop_conversion_rate will increase by 50% in 2 weeks
+? ${commits[3].sha} gdpr_compliant will become true in 2 months
+? ${commits[5].sha} team_mood will become 'happy' in 1 week
+
+4 expectations (1 succeeded, 0 failed, 3 in progress)
 `.trim()
     );
   });
@@ -141,9 +217,12 @@ describe("check", () => {
 
     expect(output.trim()).toEqual(
       `
-? desktop_conversion_rate will increase by 30% in 2 weeks
-? net_promoter_score will increase to 8 in 1 month
-? team_mood will become 'happy' in 2 weeks
+? ${commits[1].sha} desktop_conversion_rate will increase by 50% in 2 weeks
+? ${commits[3].sha} gdpr_compliant will become true in 2 months
+? ${commits[5].sha} frontend_error_rate will decrease to 6.0 in 4 days
+? ${commits[5].sha} team_mood will become 'happy' in 1 week
+
+4 expectations (0 succeeded, 0 failed, 4 in progress)
 `.trim()
     );
   });
@@ -160,15 +239,44 @@ describe("check", () => {
 
     expect(output.trim()).toEqual(
       `
-[✓] ${shas[1].slice(0, 7)} Remove extra step in the checkout
-            desktop_conversion_rate will increase by 30% in 2 weeks
-            @everzet on Wed Jun 27 2018
+ ✓ ${commits[1].sha} Remove extra step in desktop checkout
+           desktop_conversion_rate will increase by 50% in 2 weeks
+           -- @everzet on Wed Apr 01 2020
 
-       1.60 ┤                                                ╭${" "}
-       1.50 ┤                                                │${" "}
-       1.40 ┤                                                │${" "}
-       1.30 ┤                                                │${" "}
-       1.20 ┼────────────────────────────────────────────────╯${" "}
+      1.94 ┼─────────────────────────────────────────────────${' '}
+      1.75 ┤                                  ╭──────╯       ${' '}
+      1.57 ┤                    ╭─────────────╯              ${' '}
+      1.39 ┤      ╭─────────────╯                            ${' '}
+      1.20 ┼──────╯                                          ${' '}
+           └ Wed Apr 01 2020                Wed Apr 15 2020 ┘${' '}
+
+ ✓ ${commits[5].sha} Expand error handling and logging on frontend
+           frontend_error_rate will decrease to 6.0 in 4 days
+           -- @everzet on Mon Apr 06 2020
+
+     10.20 ┼────────────────────────╮                        ${' '}
+      9.00 ┤                        │                        ${' '}
+      7.80 ┤                        ╰───────────────────────╮${' '}
+      6.60 ┤                                                │${' '}
+      5.40 ┼─────────────────────────────────────────────────${' '}
+           └ Sun Apr 05 2020                Thu Apr 09 2020 ┘${' '}
+
+ ✕ ${commits[5].sha} Expand error handling and logging on frontend
+           team_mood will become 'happy' in 1 week
+           -- @everzet on Mon Apr 06 2020
+
+         ■ concerned on Mon Apr 13 2020
+         ■ happy on Thu Apr 09 2020
+         ■ sad on Tue Apr 07 2020
+
+ ? ${commits[3].sha} Implement customer export space
+           gdpr_compliant will become true in 2 months
+           -- @everzet on Sat Apr 04 2020
+
+         ■ false on Sun Apr 19 2020
+
+
+4 expectations (2 succeeded, 1 failed, 1 in progress)
 `.trim()
     );
   });
