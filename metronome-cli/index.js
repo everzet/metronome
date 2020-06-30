@@ -303,7 +303,7 @@ const printReadings = (readings, target, indent) => {
       target ? [readings, [{ date: new Date(), value: target }]] : [readings],
       {
         indent,
-        colors: chalk.level !== 0 ? ["white", "green"] : [],
+        colors: chalk.level !== 0 ? ["reset", "green"] : [],
         width: 50,
         height: 4,
         footerLeft: readings[0].date.toDateString(),
