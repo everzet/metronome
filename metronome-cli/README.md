@@ -191,7 +191,7 @@ If you don't want to add dependencies to your project, you can always run Metron
 `npx`:
 
 ```
-npx @everzet/metronome-cli --help
+npx -p @everzet/metronome-cli metronome-cli --help
 ```
 
 ### Listing Active Metrics and Readings
@@ -217,7 +217,7 @@ metronome-cli meters
 Or via npx:
 
 ```
-npx @everzet/metronome-cli meters
+npx -p @everzet/metronome-cli metronome-cli meters
 ```
 
 <br clear="all" />
@@ -239,7 +239,7 @@ metronome-cli test
 Or via npx:
 
 ```
-npx @everzet/metronome-cli test
+npx -p @everzet/metronome-cli metronome-cli test
 ```
 
 <br clear="all" />
@@ -260,7 +260,7 @@ metronome-cli expect "nps will increase to 8 in 3 days"
 Or via npx:
 
 ```
-npx @everzet/metronome-cli expect "nps will increase to 8 in 3 days"
+npx -p @everzet/metronome-cli metronome-cli expect "nps will increase to 8 in 3 days"
 ```
 
 If your expectation is valid, you would see a breakdown of meter, direction, measure and example
