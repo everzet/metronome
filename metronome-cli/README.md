@@ -15,7 +15,7 @@ engineering discussions and the business context to your commits.
 - [Linking Commits to Metrics via Expectations](#linking-commits-to-metrics-via-expectations)
 - [Performing Analysis](#performing-analysis)
   - [Installing and Running Metronome CLI](#installing-and-running-metronome-cli)
-  - [Listing Active Metrics and Readings](#testing-metrics-and-readings)
+  - [Listing Active Metrics and Readings](#listing-active-metrics-and-readings)
   - [Testing Expectations](#testing-expectations)
   - [Validating Expectations](#validating-expectations)
 
