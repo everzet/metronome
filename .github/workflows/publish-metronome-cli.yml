@@ -1,7 +1,9 @@
 name: Publish Metronome CLI
 
 on:
-  push: ~
+  push:
+    tags:
+    - v*
 
 jobs:
   test-and-publish:
