@@ -1,11 +1,7 @@
 name: Publish Metronome CLI
 
 on:
-  push:
-    tags:
-    - v*
-    paths:
-    - '.github/workflows/publish-metronome-cli.yml'
+  push: ~
 
 jobs:
   test-and-publish:
