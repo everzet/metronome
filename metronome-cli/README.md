@@ -37,8 +37,8 @@ business impacts.
 regularly, make sure you add `[meter-readings:prod]` into the commit body. Do not mix such commits
 with other code changes.**
 
-**Use [read-meters-action](../read-meters-action/README.md) to simplify regular refresh of
-readings.**
+**Use [read-meters-action](https://github.com/everzet/metronome/tree/master/read-meters-action)
+to simplify regular refresh of readings.**
 
 ### Longer Version
 
@@ -82,8 +82,9 @@ a readings file name. This allows you to have `kpis/latest.dev.json`, `kpis/late
 or others.
 
 To simplify maintenance and refresh of your meters and their readings, you can use a
-[read-meters](../read-meters-action/README.md) GitHub action within your repository. It would
-help you establish an automated routine to always keep your metrics up-to-date.
+[read-meters](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action
+within your repository. It would help you establish an automated routine to always keep your
+metrics up-to-date.
 
 ## Linking Commits to Metrics via Expectations
 
@@ -199,8 +200,9 @@ npx @everzet/metronome-cli --help
 
 The first step in making a meaningful change isn't to form a hypothesis - it is to establish the
 right measurement framework. You can easily set up custom meters and start refreshing your
-`kpis/latest.prod.json` file regularly with the help of [read-meters](../read-meters-action)
-GitHub action. But how do you see all your metrics, with their historic data at a glance?
+`kpis/latest.prod.json` file regularly with the help of [read-meters
+](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action. But how do
+you see all your metrics, with their historic data at a glance?
 
 You can always utilise existing git and GitHub diff and blame tooling, but Metronome CLI makes it
 even easier.
