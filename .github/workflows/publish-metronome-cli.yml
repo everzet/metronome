@@ -4,9 +4,11 @@ on:
   push:
     tags:
     - v*
+    paths:
+    - '.github/workflows/publish-metronome-cli.yml'
 
 jobs:
-  test:
+  test-and-publish:
     runs-on: ubuntu-latest
 
     defaults:
@@ -42,4 +44,5 @@ jobs:
     - name: Publish package to NPM
       uses: JS-DevTools/npm-publish@v1
       with:
+        package: ./metronome-cli/package.json
         token: ${{ secrets.NPM_TOKEN }}
