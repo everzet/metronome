@@ -451,7 +451,7 @@ async function main() {
     const readingsString = stringifyReadings(readings);
 
     // Commit changes to the branch
-    const subject = `:chart_with_upwards_trend: Refresh \`${readingsEnv}\` KPIs`;
+    const subject = `kpis(${readingsEnv}): refresh meter readings`;
     const message = `${subject}\n\n${READINGS_MARK(readingsEnv)}`;
     const result = await commitFile({
       octokit,
