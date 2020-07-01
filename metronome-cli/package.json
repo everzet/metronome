@@ -4,7 +4,7 @@
     "metronome-cli": "./index.js"
   },
   "main": "index.js",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "CLI tool to analyse git history in context of business KPIs",
   "author": "Konstantin Kudryashov (everzet)",
   "license": "MIT",
