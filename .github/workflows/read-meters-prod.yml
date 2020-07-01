@@ -7,7 +7,7 @@ on:
 
   push:
     # also rerun on changes to this workflow file or the meters
-    paths: [
+    paths:
     - .github/workflows/read-meters-prod.yml
     - kpis/meters/**.js
 
