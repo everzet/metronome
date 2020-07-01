@@ -77,20 +77,8 @@ Place KPI readings inside a `JSON` file under your repository. This way, your en
 can track the impact of their work. Using `JSON` would allow you to create convenient tooling
 around your measurements (**Metronome CLI** is one such tool). You have full control over the name
 of said file and its place, but if you need ideas, we suggest starting with
-`kpis/latest.prod.json`, where `prod` is the name of the tracked environment.
-
-In order for tooling (including **Metronome CLI**) to identify both the KPIs and their changes,
-make sure you commit changes to the readings file (e.g. `kpis/latest.prod.json`) separately from
-other changes and that you mark it with `[meter-readings:prod]` text anywhere in the commit body
-(`prod` is the name of the environment your readings are for). Metronome does not care about the
-file name as it purely relies on the commit messages and attached changesets in order to read
-metrics.
-
-We can easily envision a situation where your team might want to have different readings per
-environment. To avoid painful merge conflicts and resolutions in such cases, we suggest giving
-every environment its own metric file. Hence the suggestion above of `kpis/latest.prod.json` for
-a readings file name. This allows you to have `kpis/latest.dev.json`, `kpis/latest.staging.json`,
-or others. Here's a simple example of such readings file:
+`kpis/latest.prod.json`, where `prod` is the name of the tracked environment. Here's an example of
+such readings file:
 
 ```json
 {
@@ -99,7 +87,12 @@ or others. Here's a simple example of such readings file:
 }
 ```
 
-And an example of a commit message, when updating this file:
+In order for tooling (including **Metronome CLI**) to identify both the KPIs and their changes,
+make sure you commit changes to the readings file (e.g. `kpis/latest.prod.json`) separately from
+other changes and that you mark it with `[meter-readings:prod]` text anywhere in the commit body
+(`prod` is the name of the environment your readings are for). Metronome does not care about the
+file name as it purely relies on the commit messages and attached changesets in order to read
+metrics. An example of a commit message would be something like this:
 
 ```
 Refresh readings
@@ -109,6 +102,12 @@ Refresh readings
 
 > Note that only the `[meter-readings:prod]` part is considered by the tooling. You have complete
 > freedom in the rest of the message (both subject and body).
+
+We can easily envision a situation where your team might want to have different readings per
+environment. To avoid painful merge conflicts and resolutions in such cases, we suggest giving
+every environment its own metric file. Hence the suggestion above of `kpis/latest.prod.json` for
+a readings file name and a `prod` part in the `[meter-readings:prod]` commit mark. This allows
+you to have `kpis/latest.dev.json`, `kpis/latest.staging.json`, or others.
 
 To simplify maintenance and refresh of your meters and their readings, you can use a
 [read-meters](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action
@@ -185,7 +184,7 @@ to be in the following format:
                                       - become
 ```
 
-Here's a complete example of a commit message with an expectation:
+Here's an example of an expectation already embedded into the commit message:
 
 ```
 Remove extra screen in the checkout
