@@ -208,7 +208,8 @@ Remove extra screen in the checkout
 
 > By default, `[meter-expect: ...]` will create an expectation for all environments. If you want
 > to make an expectation for a particular environment instead, you can use an optional extended
-> notation: `[meter-expect:<env>: <expectation>]`.
+> notation: `[meter-expect:<env>: <expectation>]`. For example: `[meter-expect:dev: team_mood will
+become 'happy' in a week]`.
 
 As it is very expensive to correct mistakes in past commit messages, [Metronome
 CLI](#performing-analysis) comes with a [built-in command](#validating-expectations) to validate
@@ -278,6 +279,29 @@ Or via npx:
 npx -p @everzet/metronome-cli metronome-cli meters
 ```
 
+#### `<path>` argument
+
+By default, command will assume that the current folder is the target repository. You can provide
+an explicit path to the repository to analse instead:
+
+```
+metronome-cli meters /path/to/repo
+```
+
+#### `--env` flag
+
+By default, you would see readings for the `prod` environment. You can specify different
+environment to test with the `--env ...` flag:
+
+```
+metronome-cli meters --env dev
+```
+
+#### `--from` and `--to` flags
+
+You can tell Metronome to only search for readings between set revisions (commit shas) with
+`--from <sha>` and `--to <sha>` flags.
+
 <br clear="all" />
 
 ### Testing Expectations
@@ -299,6 +323,39 @@ Or via npx:
 ```
 npx -p @everzet/metronome-cli metronome-cli test
 ```
+
+#### `<path>` argument
+
+By default, command will assume that the current folder is the target repository. You can provide
+an explicit path to the repository to analse instead:
+
+```
+metronome-cli test /path/to/repo
+```
+
+#### `--env` flag
+
+By default, you would see readings and expectations for the `prod` environment. You can specify
+different environment to test with the `--env ...` flag:
+
+```
+metronome-cli test --env dev
+```
+
+> Environment parameter is optional for expectations (`[meter-expect: ...]` vs
+> `[meter-expect:dev: ...]`). So when testing particular environment, you would always get a
+> combination of expectations explicitly set for that environment **and** expectations without
+> environment specified.
+
+#### `--from` and `--to` flags
+
+You can tell Metronome to only search for readings and expectations between set revisions (commit
+shas) with `--from <sha>` and `--to <sha>` flags.
+
+#### `--format` flag
+
+By default, tester will use the `pretty` formatter. You can use a more compact version instead
+with `--format basic` flag.
 
 <br clear="all" />
 
