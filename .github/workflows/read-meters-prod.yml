@@ -6,8 +6,10 @@ on:
     - cron: "0 1 * * */2"
 
   push:
-    # also rerun on changes to this workflow file
-    paths: [".github/workflows/read-meters-prod.yml"]
+    # also rerun on changes to this workflow file or the meters
+    paths: [
+    - .github/workflows/read-meters-prod.yml
+    - kpis/meters/**.js
 
 jobs:
   read-meters:
