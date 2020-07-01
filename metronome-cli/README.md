@@ -35,19 +35,23 @@ business impacts.
 
 1. Put KPIs into a `kpis/latest.prod.json` file under your repository. List the metrics your
    team is focusing on there with their current readings:
+
    ```json
    {
      "daily_revenue": 500.0,
      "conversion_rate": 2.3
    }
    ```
+
 2. Update the readings file separately from every other file in the repository. Make sure you
    include `[meter-readings:prod]` text in the commit body, like so:
+
    ```
    Refresh readings
 
    [meter-readings:prod]
    ```
+
 3. Use [read-meters-action](https://github.com/everzet/metronome/tree/master/read-meters-action)
    to simplify regular refresh of readings.
 
@@ -75,8 +79,8 @@ repository.
 
 Place KPI readings inside a `JSON` file under your repository. This way, your engineering team
 can track the impact of their work. Using `JSON` would allow you to create convenient tooling
-around your measurements (**Metronome CLI** is one such tool). You have full control over the name
-of said file and its place, but if you need ideas, we suggest starting with
+around your measurements ([Metronome CLI](#performing-analysis) is one such tool). You have full
+control over the name of said file and its place, but if you need ideas, we suggest starting with
 `kpis/latest.prod.json`, where `prod` is the name of the tracked environment. Here's an example of
 such readings file:
 
@@ -87,12 +91,13 @@ such readings file:
 }
 ```
 
-In order for tooling (including **Metronome CLI**) to identify both the KPIs and their changes,
-make sure you commit changes to the readings file (e.g. `kpis/latest.prod.json`) separately from
-other changes and that you mark it with `[meter-readings:prod]` text anywhere in the commit body
-(`prod` is the name of the environment your readings are for). Metronome does not care about the
-file name as it purely relies on the commit messages and attached changesets in order to read
-metrics. An example of a commit message would be something like this:
+In order for tooling (including [Metronome CLI](#performing-analysis)) to identify both the KPIs
+and their changes, make sure you commit changes to the readings file (e.g.
+`kpis/latest.prod.json`) separately from other changes and that you mark it with
+`[meter-readings:prod]` text anywhere in the commit body (`prod` is the name of the environment
+your readings are for). Metronome does not care about the file name as it purely relies on the
+commit messages and attached changesets in order to read metrics. An example of a commit message
+would be something like this:
 
 ```
 Refresh readings
@@ -120,13 +125,15 @@ metrics up-to-date.
 
 1. Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text
    in their bodies, like so:
+
    ```
    Remove extra screen in the checkout
 
    [meter-expect: conversion_rate will increase by 20% in 2 weeks]
    ```
+
 2. Use Metronome CLI's [expectation validation command](#validating-expectations) to check that
-   `<your expectation>` is parseable and produces expected result.**
+   `<your expectation>` is parseable and produces expected result.
 
 ### Longer Version
 
@@ -153,10 +160,10 @@ All expectations have four things in common:
 3. **MEASURE** - states expected target value or delta (e.g. `10%`, `3.2`, `'happy'`, etc.)
 4. **TIMELINE** - sets the length of the feedback loop (e.g. `in 2 months`, `in 1 week`, etc.)
 
-In order for tooling (including **Metronome CLI**) to identify commits linked to expectations,
-make sure you mark commits in question with the `[meter-expect: <your-expectation>]` text anywhere
-in the commit message. For Metronome to understand and be able to analyse expectations, they have
-to be in the following format:
+In order for tooling (including [Metronome CLI](#performing-analysis)) to identify commits linked
+to expectations, make sure you mark commits in question with the
+`[meter-expect: <your-expectation>]` text anywhere in the commit message. For Metronome to
+understand and be able to analyse expectations, they have to be in the following format:
 
 ```
                                                - number (`25.0`)
@@ -195,11 +202,11 @@ Remove extra screen in the checkout
 > Note that only the `[meter-expect: ...]` part is considered by the tooling. You have complete
 > freedom in the rest of the message (both subject and body).
 
-As it is very expensive to correct mistakes in past commit messages, **Metronome CLI** comes with
-a [built-in command](#validating-expectations) to validate expectation strings and see their
-parsed meaning. It will basically tell you if Metronome would be able to parse and analyse your
-expectation later. We strongly suggest checking your expectation strings with that command, until
-you get a hang of the language.
+As it is very expensive to correct mistakes in past commit messages, [Metronome
+CLI](#performing-analysis) comes with a [built-in command](#validating-expectations) to validate
+expectation strings and see their parsed meaning. It will basically tell you if Metronome would
+be able to parse and analyse your expectation later. We strongly suggest checking your
+expectation strings with that command, until you get a hang of the language.
 
 ## Performing Analysis
 
