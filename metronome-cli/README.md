@@ -33,12 +33,23 @@ business impacts.
 
 ### TLDR;
 
-**Put KPIs into a `kpis/latest.prod.json` file under your repository. When updating said file
-regularly, make sure you add `[meter-readings:prod]` into the commit body. Do not mix such commits
-with other code changes.**
+1. Put KPIs into a `kpis/latest.prod.json` file under your repository. List the metrics your
+   team is focusing on there with their current readings:
+   ```json
+   {
+     "daily_revenue": 500.0,
+     "conversion_rate": 2.3
+   }
+   ```
+2. Update the readings file separately from every other file in the repository. Make sure you
+   include `[meter-readings:prod]` text in the commit body, like so:
+   ```
+   Refresh readings
 
-**Use [read-meters-action](https://github.com/everzet/metronome/tree/master/read-meters-action)
-to simplify regular refresh of readings.**
+   [meter-readings:prod]
+   ```
+3. Use [read-meters-action](https://github.com/everzet/metronome/tree/master/read-meters-action)
+   to simplify regular refresh of readings.
 
 ### Longer Version
 
@@ -88,6 +99,17 @@ or others. Here's a simple example of such readings file:
 }
 ```
 
+And an example of a commit message, when updating this file:
+
+```
+Refresh readings
+
+[meter-readings:prod]
+```
+
+> Note that only the `[meter-readings:prod]` part is considered by the tooling. You have complete
+> freedom in the rest of the message (both subject and body).
+
 To simplify maintenance and refresh of your meters and their readings, you can use a
 [read-meters](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action
 within your repository. It would help you establish an automated routine to always keep your
@@ -97,11 +119,15 @@ metrics up-to-date.
 
 ### TLDR;
 
-**Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text in
-their bodies.**
+1. Mark commits that you expect to impact metrics with `[meter-expect: <your expectation>]` text
+   in their bodies, like so:
+   ```
+   Remove extra screen in the checkout
 
-**Use Metronome CLI's [expectation validation command](#validating-expectations) to check that
-`<your expectation>` is parseable and produces expected result.**
+   [meter-expect: conversion_rate will increase by 20% in 2 weeks]
+   ```
+2. Use Metronome CLI's [expectation validation command](#validating-expectations) to check that
+   `<your expectation>` is parseable and produces expected result.**
 
 ### Longer Version
 
@@ -158,6 +184,17 @@ to be in the following format:
                                       - decrease by
                                       - become
 ```
+
+Here's a complete example of a commit message with an expectation:
+
+```
+Remove extra screen in the checkout
+
+[meter-expect: conversion_rate will increase by 20% in 2 weeks]
+```
+
+> Note that only the `[meter-expect: ...]` part is considered by the tooling. You have complete
+> freedom in the rest of the message (both subject and body).
 
 As it is very expensive to correct mistakes in past commit messages, **Metronome CLI** comes with
 a [built-in command](#validating-expectations) to validate expectation strings and see their
