@@ -137,3 +137,19 @@ module.exports.pronicNumber = async (env) => {
 Note that the `revenue` meter uses `axios` library. You can install and use dependencies via `npm`
 as per usual, but you would have to commit `kpis/meters/node_modules/` folder (don't forget to
 remove it from `.gitignore`).
+
+### `kpis/latest.prod.json`
+
+The readings file would be created automatically by the workflow on first successful meters
+reading and would be updated (with `kpis(prod): ...` commit) every time readings update. The file
+itself is a simple one-dimensional JSON map:
+
+```json
+{
+  "revenue": 500.0,
+  "pronicNumber": 42
+}
+```
+
+Keys are always sorted before being written down, so you should only see this file changed when
+the actual values change.

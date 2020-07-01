@@ -79,7 +79,14 @@ We can easily envision a situation where your team might want to have different 
 environment. To avoid painful merge conflicts and resolutions in such cases, we suggest giving
 every environment its own metric file. Hence the suggestion above of `kpis/latest.prod.json` for
 a readings file name. This allows you to have `kpis/latest.dev.json`, `kpis/latest.staging.json`,
-or others.
+or others. Here's a simple example of such readings file:
+
+```json
+{
+  "daily_revenue": 500.0,
+  "conversion_rate": 2.3
+}
+```
 
 To simplify maintenance and refresh of your meters and their readings, you can use a
 [read-meters](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action
