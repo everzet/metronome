@@ -1,0 +1,27 @@
+name: Read production meters (KPIs)
+
+on:
+  schedule:
+    # Run every 2 days at midnight BST (1AM UTC)
+    - cron: "0 1 * * */2"
+
+  push:
+    # also rerun on changes to this workflow file
+    paths: [".github/workflows/read-meters-prod.yml"]
+
+jobs:
+  read-meters:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Read meters
+        uses: everzet/metronome/read-meters-action@master
+        with:
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-branch: master
+          readings-env: prod
