@@ -195,6 +195,9 @@ understand and be able to analyse expectations, they have to be in the following
                                       - become
 ```
 
+> Due to the complexity with escaping, string measures should always be wrapped into single
+quotes (`'...'`) or backticks (`` `...` ``) and **never** double quotes (`"..."`).
+
 Here's an example of an expectation already embedded into the commit message:
 
 ```

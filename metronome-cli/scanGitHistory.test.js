@@ -78,7 +78,7 @@ test("fetches file path and content for [meter-readings] commits", async () => {
 });
 
 test("triggers callback for commits with [meter-expect: ...] in their body", async () => {
-  repo.commit("commit [meter-expect: some assumption text]");
+  repo.commit("commit [meter-expect: some 'assumption' text]");
 
   const onCommit = jest.fn(async () => null);
   await scanGitHistory(repo.path, {}, onCommit);
@@ -90,7 +90,7 @@ test("triggers callback for commits with [meter-expect: ...] in their body", asy
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.author).toEqual("everzet");
   expect(parsedCommit.expectations).toEqual([
-    { string: "some assumption text", environment: undefined },
+    { string: "some 'assumption' text", environment: undefined },
   ]);
   expect(parsedCommit.date).toBeTruthy();
 });
