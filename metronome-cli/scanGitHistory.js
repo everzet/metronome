@@ -8,8 +8,8 @@ const GIT_LOG_OPTIONS = {
   format: "%H\n%aI\n%an\n%B",
 };
 
-const METER_READINGS_REGEX = /\[meter-readings\:(?<env>[^\]]+)\]/i;
-const METER_EXPECTATION_REGEX = /\[meter-expect\:(?<expectation>[^\]]+)\]/gi;
+const METER_READINGS_REGEX = /\[meter-readings\:(?<env>[^\]]+)\]/gi;
+const METER_EXPECTATION_REGEX = /\[meter-expect\:(?:(?<env>[^\:\]]+)\:)?(?<expectation>[^\]]+)\]/gi;
 
 module.exports = async (cwd, opts, onCommit) => {
   return new Promise((done) => {
@@ -27,7 +27,7 @@ const parseCommit = async (cwd, string) => {
   const [sha, date, author, ...rest] = string.split("\n");
   const message = rest.join("\n");
   const expectations = extractExpectations(message);
-  const readingsEnv = extractReadingsEnv(message);
+  const readingsEnvironments = extractReadingsEnvironments(message);
 
   if (expectations.length > 0) {
     return {
@@ -46,22 +46,20 @@ const parseCommit = async (cwd, string) => {
       type: "readings",
       sha,
       date: new Date(date),
-      env: readingsEnv,
+      environments: readingsEnvironments,
     };
   }
 };
 
 const extractExpectations = (message) => {
-  return [...message.matchAll(METER_EXPECTATION_REGEX)].map(({ groups }) =>
-    groups.expectation.trim()
-  );
+  return [...message.matchAll(METER_EXPECTATION_REGEX)].map(({ groups }) => ({
+    string: groups.expectation.trim(),
+    environment: groups.env ? groups.env.trim() : undefined,
+  }));
 };
 
-const extractReadingsEnv = (message) => {
-  const match = message.match(METER_READINGS_REGEX);
-  if (match) {
-    return match.groups.env.trim();
-  } else {
-    return null;
-  }
+const extractReadingsEnvironments = (message) => {
+  return [...message.matchAll(METER_READINGS_REGEX)].map(({ groups }) =>
+    groups.env.trim()
+  );
 };

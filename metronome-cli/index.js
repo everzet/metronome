@@ -82,14 +82,15 @@ async function test(argv) {
       if (commit.type === "readings") {
         [parseReadings(commit)]
           .filter(({ ok }) => ok)
-          .filter(({ env }) => env === argv.env)
+          .filter(({ environments }) => environments.includes(argv.env))
           .forEach(({ readings: newReadings }) => {
             readings = newReadings;
             trackers.forEach((tracker) => tracker.track(readings));
           });
       } else if (commit.type === "expectations") {
         commit.expectations
-          .map((expectation) => parseExpectation(expectation, commit.date))
+          .filter(({ environment }) => !environment || environment === argv.env)
+          .map(({ string }) => parseExpectation(string, commit.date))
           .filter(({ ok }) => ok)
           .map(({ expectation }) => ({
             ...expectation,
@@ -127,7 +128,7 @@ async function meters(argv) {
       if (commit.type === "readings") {
         [parseReadings(commit)]
           .filter(({ ok }) => ok)
-          .filter(({ env }) => env === argv.env)
+          .filter(({ environments }) => environments.includes(argv.env))
           .forEach(({ readings: newReadings }) => {
             newReadings.forEach((reading) => {
               readings[reading.meter] = [

@@ -28,7 +28,7 @@ test("triggers callback for commits with [meter-readings:...] in their subject",
   const parsedCommit = onCommit.mock.calls[0][0];
 
   expect(parsedCommit.type).toEqual("readings");
-  expect(parsedCommit.env).toEqual("prod");
+  expect(parsedCommit.environments).toEqual(["prod"]);
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.date).toBeTruthy();
 });
@@ -43,7 +43,22 @@ test("triggers callback for commits with [meter-readings] in their body", async 
   const parsedCommit = onCommit.mock.calls[0][0];
 
   expect(parsedCommit.type).toEqual("readings");
-  expect(parsedCommit.env).toEqual("test");
+  expect(parsedCommit.environments).toEqual(["test"]);
+  expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
+  expect(parsedCommit.date).toBeTruthy();
+});
+
+test("allows multiple [meter-readings] to specify multiple environments", async () => {
+  repo.commit("metered commit\n\n[meter-readings:test]\n[meter-readings:prod]");
+
+  const onCommit = jest.fn(async () => null);
+  await scanGitHistory(repo.path, {}, onCommit);
+
+  expect(onCommit.mock.calls.length).toBe(1);
+  const parsedCommit = onCommit.mock.calls[0][0];
+
+  expect(parsedCommit.type).toEqual("readings");
+  expect(parsedCommit.environments).toEqual(["test", "prod"]);
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.date).toBeTruthy();
 });
@@ -74,7 +89,9 @@ test("triggers callback for commits with [meter-expect: ...] in their body", asy
   expect(parsedCommit.type).toEqual("expectations");
   expect(parsedCommit.sha).toMatch(/[0-9a-f]{40}/);
   expect(parsedCommit.author).toEqual("everzet");
-  expect(parsedCommit.expectations).toEqual(["some assumption text"]);
+  expect(parsedCommit.expectations).toEqual([
+    { string: "some assumption text", environment: undefined },
+  ]);
   expect(parsedCommit.date).toBeTruthy();
 });
 
@@ -87,7 +104,25 @@ test("handles commits with multiple expectations", async () => {
   expect(onCommit.mock.calls.length).toBe(1);
   const parsedCommit = onCommit.mock.calls[0][0];
 
-  expect(parsedCommit.expectations).toEqual(["one", "two"]);
+  expect(parsedCommit.expectations).toEqual([
+    { string: "one", environment: undefined },
+    { string: "two", environment: undefined },
+  ]);
+});
+
+test("supports specifying optional environmentironment in expectations", async () => {
+  repo.commit("commit\n\n[meter-expect:dev:one]\n[meter-expect:prod:two]");
+
+  const onCommit = jest.fn(async () => null);
+  await scanGitHistory(repo.path, {}, onCommit);
+
+  expect(onCommit.mock.calls.length).toBe(1);
+  const parsedCommit = onCommit.mock.calls[0][0];
+
+  expect(parsedCommit.expectations).toEqual([
+    { environment: "dev", string: "one" },
+    { environment: "prod", string: "two" },
+  ]);
 });
 
 test("commits are processed in chronological (reverse for git log) order", async () => {
@@ -98,17 +133,23 @@ test("commits are processed in chronological (reverse for git log) order", async
   await scanGitHistory(repo.path, {}, onCommit);
 
   expect(onCommit.mock.calls.length).toBe(2);
-  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
-  expect(onCommit.mock.calls[1][0].expectations).toEqual(["two"]);
+  expect(onCommit.mock.calls[0][0].expectations).toEqual([
+    { string: "one", environment: undefined },
+  ]);
+  expect(onCommit.mock.calls[1][0].expectations).toEqual([
+    { string: "two", environment: undefined },
+  ]);
 });
 
-test("whitespace is removed from env and expectations", async () => {
+test("whitespace is removed from environment and expectations", async () => {
   repo.commit("commit [meter-expect:  one ]");
   repo.commit("commit [meter-readings: prod  ]");
 
   const onCommit = jest.fn(async () => null);
   await scanGitHistory(repo.path, {}, onCommit);
 
-  expect(onCommit.mock.calls[0][0].expectations).toEqual(["one"]);
-  expect(onCommit.mock.calls[1][0].env).toEqual("prod");
+  expect(onCommit.mock.calls[0][0].expectations).toEqual([
+    { string: "one", environment: undefined },
+  ]);
+  expect(onCommit.mock.calls[1][0].environments).toEqual(["prod"]);
 });

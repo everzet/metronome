@@ -108,6 +108,10 @@ Refresh readings
 > Note that only the `[meter-readings:prod]` part is considered by the tooling. You have complete
 > freedom in the rest of the message (both subject and body).
 
+> Also note that you can have multiple `[meter-readings:...]` marks in the commit body. This is
+> useful if you for some reason want to be able to pull the same readings file into multiple
+> different environments during analysis.
+
 We can easily envision a situation where your team might want to have different readings per
 environment. To avoid painful merge conflicts and resolutions in such cases, we suggest giving
 every environment its own metric file. Hence the suggestion above of `kpis/latest.prod.json` for
@@ -201,6 +205,10 @@ Remove extra screen in the checkout
 
 > Note that only the `[meter-expect: ...]` part is considered by the tooling. You have complete
 > freedom in the rest of the message (both subject and body).
+
+> By default, `[meter-expect: ...]` will create an expectation for all environments. If you want
+> to make an expectation for a particular environment instead, you can use an optional extended
+> notation: `[meter-expect:<env>: <expectation>]`.
 
 As it is very expensive to correct mistakes in past commit messages, [Metronome
 CLI](#performing-analysis) comes with a [built-in command](#validating-expectations) to validate

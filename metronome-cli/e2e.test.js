@@ -34,7 +34,7 @@ beforeAll(() => {
     {
       date: "2020-04-04 11:20",
       message: `Implement customer export space
-      [meter-expect: gdpr_compliant will become true in 2 months ]
+      [meter-expect:prod: gdpr_compliant will become true in 2 months ]
       `,
     },
     {
@@ -215,11 +215,10 @@ describe("test", () => {
     expect(output.trim()).toEqual(
       `
 ? ${commits[1].sha} desktop_conversion_rate will increase by 50% in 2 weeks
-? ${commits[3].sha} gdpr_compliant will become true in 2 months
 ? ${commits[5].sha} frontend_error_rate will decrease to 6.0 in 4 days
 ? ${commits[5].sha} team_mood will become 'happy' in 1 week
 
-4 expectations (0 succeeded, 0 failed, 4 in progress)
+3 expectations (0 succeeded, 0 failed, 3 in progress)
 `.trim()
     );
   });
