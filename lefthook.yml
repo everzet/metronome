@@ -7,13 +7,16 @@ pre-commit:
       run: "prettier --write {staged_files} && git add {staged_files}"
 
     test-read-meters-action:
-      root: 'read-meters-action/'
-      run: 'npm test'
+      root: "read-meters-action/"
+      glob: "*.{js,json}"
+      run: "test -n '{staged_files}' && npm test"
 
     build-read-meters-action-dist:
-      root: 'read-meters-action/'
-      run: 'npm run build && git add dist'
+      root: "read-meters-action/"
+      glob: "*.{js,json}"
+      run: "test -n '{staged_files}' && npm run build && git add dist"
 
     test-metronome-cli:
-      root: 'metronome-cli/'
-      run: 'npm test'
+      root: "metronome-cli/"
+      glob: "*.{js,json}"
+      run: "test -n '{staged_files}' && npm test"
