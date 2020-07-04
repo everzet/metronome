@@ -108,6 +108,7 @@ test("properly parses different types of timelines", () => {
     { text: "within a week", deadline: new Date("2020-07-03T12:00:00.000Z") },
     { text: "in under a week", deadline: new Date("2020-07-03T12:00:00.000Z") },
     { text: "in 2 weeks", deadline: new Date("2020-07-10T12:00:00.000Z") },
+    { text: "on 2020-07-12", deadline: new Date("2020-07-12T12:00:00.000Z") },
     {
       text: "within two weeks",
       deadline: new Date("2020-07-10T12:00:00.000Z"),

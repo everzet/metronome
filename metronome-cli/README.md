@@ -192,7 +192,7 @@ understand and be able to analyse expectations, they have to be in the following
 (as per `latest.prod.json`)           - increase to             - within a week
                                       - increase by             - in 1 month
                                       - decrease to             - next week
-                                      - decrease by
+                                      - decrease by             - on 2020-07-15
                                       - become
 ```
 
