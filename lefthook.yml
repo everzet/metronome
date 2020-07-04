@@ -1,6 +1,11 @@
 pre-commit:
   parallel: true
   commands:
+    prettyfy-js:
+      glob: "*.{js,json}"
+      exclude: "read-meters-action/dist/|kpis/"
+      run: "prettier --write {staged_files} && git add {staged_files}"
+
     test-read-meters-action:
       root: 'read-meters-action/'
       run: 'npm test'

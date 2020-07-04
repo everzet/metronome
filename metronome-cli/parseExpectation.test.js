@@ -136,7 +136,7 @@ test("validates consistency of resulting expectation", () => {
         "Booleans can only be used with 'maintain' or 'become' modifiers, but 'increase_by' was given",
     },
     {
-      text: 'c increase to `Hello` tomorrow',
+      text: "c increase to `Hello` tomorrow",
       err:
         "Strings can only be used with 'maintain' or 'become' modifiers, but 'increase_to' was given",
     },
