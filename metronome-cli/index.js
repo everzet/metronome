@@ -80,9 +80,9 @@ async function test(argv) {
     { from: argv.from, to: argv.to },
     async (commit) => {
       if (commit.type === "readings") {
-        [parseReadings(commit)]
-          .filter(({ ok }) => ok)
-          .filter(({ environments }) => environments.includes(argv.env))
+        commit.environments
+          .filter((environment) => environment === argv.env)
+          .map((environment) => parseReadings(commit))
           .forEach(({ readings: newReadings }) => {
             readings = newReadings;
             trackers.forEach((tracker) => tracker.track(readings));
@@ -126,9 +126,9 @@ async function meters(argv) {
     { from: argv.from, to: argv.to },
     async (commit) => {
       if (commit.type === "readings") {
-        [parseReadings(commit)]
-          .filter(({ ok }) => ok)
-          .filter(({ environments }) => environments.includes(argv.env))
+        commit.environments
+          .filter((environment) => environment === argv.env)
+          .map((environment) => parseReadings(commit))
           .forEach(({ readings: newReadings }) => {
             newReadings.forEach((reading) => {
               readings[reading.meter] = [
