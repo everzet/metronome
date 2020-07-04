@@ -16,7 +16,6 @@ test("successfully parses readings from an enchanced commit", () => {
   const readings = parseReadings(commit);
 
   expect(readings).toEqual({
-    ...commit,
     ok: true,
     readings: [
       {

@@ -1,18 +1,12 @@
-module.exports = (commit) => {
+module.exports = ({ path, content, sha, date }) => {
   try {
-    const readingsObject = JSON.parse(commit.content);
-    const readings = [...Object.entries(readingsObject)].map(
-      ([meter, value]) => ({
-        date: commit.date,
-        path: commit.path,
-        sha: commit.sha,
-        meter,
-        value,
-      })
-    );
+    const readingsObject = JSON.parse(content);
+    const readings = [
+      ...Object.entries(readingsObject),
+    ].map(([meter, value]) => ({ date, path, sha, meter, value }));
 
-    return { ok: true, ...commit, readings };
+    return { ok: true, readings };
   } catch (error) {
-    return { ok: false, ...commit, error };
+    return { ok: false, error };
   }
 };
