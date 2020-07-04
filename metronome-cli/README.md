@@ -108,15 +108,16 @@ Refresh readings
 > Note that only the `[meter-readings:prod]` part is considered by the tooling. You have complete
 > freedom in the rest of the message (both subject and body).
 
-> Also note that you can have multiple `[meter-readings:...]` marks in the commit body. This is
-> useful if you for some reason want to be able to pull the same readings file into multiple
-> different environments during analysis.
-
 We can easily envision a situation where your team might want to have different readings per
 environment. To avoid painful merge conflicts and resolutions in such cases, we suggest giving
 every environment its own metric file. Hence the suggestion above of `kpis/latest.prod.json` for
 a readings file name and a `prod` part in the `[meter-readings:prod]` commit mark. This allows
 you to have `kpis/latest.dev.json`, `kpis/latest.staging.json`, or others.
+
+> We also support a case where you would like to have multiple environments, but populate them
+> with the same readings. In cases like that, you could tag commits to a single readings file with
+> multiple `[meter-readings:...]` marks (e.g. `[meter-readings:prod] [meter-readings:test]`).
+> All marked environments would be assumed to have the same readings at that point.
 
 To simplify maintenance and refresh of your meters and their readings, you can use a
 [read-meters](https://github.com/everzet/metronome/tree/master/read-meters-action) GitHub action
