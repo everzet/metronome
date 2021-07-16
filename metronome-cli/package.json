@@ -22,7 +22,7 @@
   "dependencies": {
     "asciichart": "^1.5.21",
     "chalk": "^4.1.0",
-    "chrono-node": "^1.4.6",
+    "chrono-node": "^2.2.4",
     "git-raw-commits": "^2.0.7",
     "through2": "^3.0.2",
     "yargs": "^15.3.1"
